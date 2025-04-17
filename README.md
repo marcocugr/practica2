@@ -1,5 +1,5 @@
 # Práctica 2 de *Inteligencia Artificial*, curso 2024/2025
-LO HE PUESTO YO ESTA LINEA
+
 ## Prerrequisitos
 
 ### Crear una cuenta en [GitHub](https://github.com/). 
@@ -80,4 +80,6 @@ Si no tienes linux de forma nativa en tu ordenador, puedes crear una máquina vi
 
 ## Más información
 Hemos creado un [fichero con preguntas frecuentes](./FAQ.md) que han ido apareciendo en las distintas sesiones de prácticas.
+
+LO HE PUESTO YO ESTA LINEA
 
