@@ -33,7 +33,7 @@ int ComportamientoRescatador::interact(Action accion, int valor)
 	return 0;
 }
 
-int ComportamientoRescatador::VeoCasillaInteresante(char i, char c, char d, bool zap){
+int ComportamientoRescatador::VeoCasillaInteresanteR(char i, char c, char d, bool zap){
 	if(c=='X') return 2;
 	else if (i=='X') return 1;
 	else if (d=='X') return 3;
@@ -76,7 +76,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 		char i= ViablePorAlturaR(sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
 		char c= ViablePorAlturaR(sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
 		char d= ViablePorAlturaR(sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
-		int pos=VeoCasillaInteresante(i, c, d, tiene_zapatillas);
+		int pos=VeoCasillaInteresanteR(i, c, d, tiene_zapatillas);
 		switch(pos){
 			case 2:
 				accion=WALK;
