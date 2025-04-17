@@ -1,5 +1,5 @@
 # Práctica 2 de *Inteligencia Artificial*, curso 2024/2025
-
+LO HE PUESTO YO ESTA LINEA
 ## Prerrequisitos
 
 ### Crear una cuenta en [GitHub](https://github.com/). 
