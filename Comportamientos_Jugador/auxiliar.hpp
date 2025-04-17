@@ -28,6 +28,7 @@ public:
   Action think(Sensores sensores);
   int VeoCasillaInteresanteA(char i, char c, char d);
   char ViablePorAlturaA(char casilla, int dif);
+  bool ChocaConRescatador(char frente);
 
   int interact(Action accion, int valor);
 

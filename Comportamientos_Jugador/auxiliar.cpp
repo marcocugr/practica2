@@ -50,6 +50,10 @@ char ComportamientoAuxiliar::ViablePorAlturaA(char casilla, int dif){
 		return 'P';
 }
 
+bool ComportamientoAuxiliar::ChocaConRescatador(char frente){
+	return (frente=='r');
+}
+
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 {
 	// El comportamiento de seguir un camino hasta encontrar un puesto base.
@@ -68,6 +72,9 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 		accion=TURN_SR;
 		giro45Izq--;
 	}
+	else if(ChocaConRescatador(sensores.agentes[2])==true){
+		accion=TURN_SR;
+	}
 	else {
 		char i= ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
 		char c= ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
@@ -78,14 +85,14 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 				accion=WALK;
 				break;
 			case 1:
-				giro45Izq=4; //PONER 3 A LA DERECHA OSEA TURN_SR
+				giro45Izq=5; //PONER 3 A LA DERECHA OSEA TURN_SR
 				accion=TURN_SR;
 				break;
 			case 3:
 				accion=TURN_SR;
 				break;
 			case 0:
-				giro45Izq=4;
+				giro45Izq=5;
 				accion=TURN_SR; //PONER 3 A LA DERECHA OSEA TURN_SR
 				break;
 		}
