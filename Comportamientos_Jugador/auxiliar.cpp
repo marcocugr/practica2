@@ -78,14 +78,14 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 				accion=WALK;
 				break;
 			case 1:
-				giro45Izq=5; //PONER 3 A LA DERECHA OSEA TURN_SR
+				giro45Izq=4; //PONER 3 A LA DERECHA OSEA TURN_SR
 				accion=TURN_SR;
 				break;
 			case 3:
 				accion=TURN_SR;
 				break;
 			case 0:
-				giro45Izq=5;
+				giro45Izq=4;
 				accion=TURN_SR; //PONER 3 A LA DERECHA OSEA TURN_SR
 				break;
 		}

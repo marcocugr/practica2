@@ -30,6 +30,7 @@ public:
   int interact(Action accion, int valor);
   int VeoCasillaInteresanteR(char i, char c, char d, bool zap);
   char ViablePorAlturaR(char casilla, int dif, bool zap);
+  bool ChocaConAuxiliar(char frente);
 
   Action ComportamientoRescatadorNivel_0(Sensores sensores);
   Action ComportamientoRescatadorNivel_1(Sensores sensores);

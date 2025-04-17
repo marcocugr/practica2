@@ -55,6 +55,10 @@ char ComportamientoRescatador::ViablePorAlturaR(char casilla, int dif, bool zap)
 		return 'P';
 }
 
+bool ComportamientoRescatador::ChocaConAuxiliar(char frente){
+	return (frente=='a');
+}
+
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
 {
 	Action accion;
@@ -72,6 +76,10 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 		accion=TURN_SR;
 		giro45Izq--;
 	}
+	else if(ChocaConAuxiliar(sensores.agentes[2])==true){
+		accion=TURN_L;
+	}
+	
 	else {
 		char i= ViablePorAlturaR(sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
 		char c= ViablePorAlturaR(sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
