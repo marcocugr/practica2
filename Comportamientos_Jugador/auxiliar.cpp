@@ -252,7 +252,17 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 				} else { //si es el camino izquierdo o derecho
 				//cout << "puedo seguir por derecha o izquierda" << endl;
 					int rumbo_deseado = (mejor == 1) ? (rumbo_anterior - 1 + 8) % 8 : (rumbo_anterior + 1) % 8; //veo cual de los dos es y ajustamos cual es la direccion deseada, si izquierda o derecha
+				/*
 				int diferencia = (rumbo_deseado - sensores.rumbo); //deseado menos actual nos dasu proximo rumbo osea derecha o izquierda
+				
+				*/
+				
+				
+				int diferencia = (rumbo_deseado - sensores.rumbo + 8) % 8; // Esto asegura que la diferencia siempre esté en el rango [0, 7]
+    
+    if (diferencia > 4) {
+        diferencia -= 8; // Normalizamos la diferencia a [-4, 4]
+    }
 				bool esDiagonal = (rumbo_deseado % 2 != 0);
 				
 					if(esDiagonal==false){

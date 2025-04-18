@@ -252,40 +252,52 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 				break;
 				
 			case 0: //si no hay salida
-			//cout << "estoy en case 0, porque no hay salida de frente, buscando un lado" << endl;
+			cout << "estoy en case 0, porque no hay salida de frente, buscando un lado" << endl;
 				int mejor=0; int rumbo_deseado;
 				mejor=mejorOpcion(tiene_zapatillas);	//veo donde es mejor ir, di izquierda o derecha
 				if(mejor==0){ //si no habia salida, se da media vuelta 180º
-					//cout << "no podia seguir ni a derecha ni a izquierda, me doy la vuelta" << endl;
+					cout << "no podia seguir ni a derecha ni a izquierda, me doy la vuelta" << endl;
 					giro45Izq=3;
 					accion=TURN_SR;
 					
 				} else { //si es el camino izquierdo o derecho
-				//cout << "puedo seguir por derecha o izquierda" << endl;
+				cout << "puedo seguir por derecha o izquierda" << endl;
 					int rumbo_deseado = (mejor == 1) ? (rumbo_anterior - 1 + 8) % 8 : (rumbo_anterior + 1) % 8; //veo cual de los dos es y ajustamos cual es la direccion deseada, si izquierda o derecha
+				/*
 				int diferencia = (rumbo_deseado - sensores.rumbo); //deseado menos actual nos dasu proximo rumbo osea derecha o izquierda
+				
+				*/
+				
+				
+				int diferencia = (rumbo_deseado - sensores.rumbo + 8) % 8; // Esto asegura que la diferencia siempre esté en el rango [0, 7]
+    
+    if (diferencia > 4) {
+        diferencia -= 8; // Normalizamos la diferencia a [-4, 4]
+    }
+				
+				
 				bool esDiagonal = (rumbo_deseado % 2 != 0);
 				
 					if(esDiagonal==false){
-					//cout << "estoy en una direccion diagonal" << endl;
+					cout << "estoy en una direccion diagonal" << endl;
 						if(diferencia>=0){ //tiene que girar a la derecha
-						//cout << "tengo que girar a la derecha" << endl;
+						cout << "tengo que girar a la derecha" << endl;
 							giro45Izq=1;
 							accion=TURN_SR;
 						}else{ //tiene que girar a la izquierda
-						//cout << "tengo que girar a la izquierda" << endl;
+						cout << "tengo que girar a la izquierda" << endl;
 							giro45Izq=4; //antes estaba en 2
 							accion=TURN_SR;
 						}
 					
 					} else {
-					//cout << "estoy en una direccion horizontal" << endl;
+					cout << "estoy en una direccion horizontal" << endl;
 						if(diferencia>=0){ //tiene que girar a la derecha
-						//cout << "tengo que girar a la derecha" << endl;
+						cout << "tengo que girar a la derecha" << endl;
 							giro45Izq=1;
 							accion=TURN_SR;
 						}else{ //tiene que girar a la izquierda
-						//cout << "tengo que girar a la izquierda" << endl;
+						cout << "tengo que girar a la izquierda" << endl;
 							giro45Izq=5;
 							accion=TURN_SR;
 						}
