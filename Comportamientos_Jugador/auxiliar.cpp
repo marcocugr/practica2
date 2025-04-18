@@ -40,11 +40,11 @@ int ComportamientoAuxiliar::VeoCasillaInteresanteA(char i, char c, char d, bool 
 	else if (d=='X') return 3;
 	
 	//pillar zapatillas si no tiene
-	if(!zap){ 
+	//if(!zap){ 
 		if(c=='D') return 2;
 		else if(i=='D') return 1;
 		else if(d=='D') return 3;
-	}
+	//}
 	
 	//si hay algun camino
 	if(c=='C' || i=='C' || d=='C'){
