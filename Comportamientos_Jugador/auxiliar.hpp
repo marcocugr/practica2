@@ -17,6 +17,11 @@ public:
     last_action=IDLE;
     tiene_zapatillas=false;
     giro45Izq=0;
+    actualMia[0]='P'; actualMia[1]='P'; actualMia[2]='P';
+    visitadas = std::vector<std::vector<int>>(
+    mapaResultado.size(),
+    std::vector<int>(mapaResultado[0].size(), 0));
+    posAnteriorF=-1; posAnteriorC=-1;
   }
   ComportamientoAuxiliar(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
@@ -28,10 +33,11 @@ public:
 
   Action think(Sensores sensores);
   
-  int VeoCasillaInteresanteA(char i, char c, char d);
+  int VeoCasillaInteresanteA(char i, char c, char d, bool zap);
   char ViablePorAlturaA(char casilla, int dif);
   bool ChocaConRescatador(char frente);
   void SituarSensorEnMapaA(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores);
+  int mejorOpcionA(bool zap);
 
   int interact(Action accion, int valor);
 
@@ -43,9 +49,14 @@ public:
 
 private:
   // Definir Variables de Estado
-  Action last_action;
-  bool tiene_zapatillas;
-  int giro45Izq=0;
+  	Action last_action;
+	bool tiene_zapatillas;
+	int giro45Izq=0;
+	char actualMia[3];
+	int rumbo_anterior;
+	vector<vector<int>> visitadas;
+	pair<int, int> pos_c, pos_i, pos_d;
+	int posAnteriorF, posAnteriorC;
 };
 
 #endif

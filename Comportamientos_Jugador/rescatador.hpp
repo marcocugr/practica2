@@ -23,6 +23,7 @@ public:
     std::vector<int>(mapaResultado[0].size(), 0)
     
 );
+    posAnteriorF=-1; posAnteriorC=-1;
 
   }
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
@@ -55,6 +56,7 @@ private:
 	int rumbo_anterior;
 	vector<vector<int>> visitadas;
 	pair<int, int> pos_c, pos_i, pos_d;
+	int posAnteriorF, posAnteriorC;
 };
 
 #endif

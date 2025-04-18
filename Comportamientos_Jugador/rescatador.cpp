@@ -58,11 +58,13 @@ int ComportamientoRescatador::VeoCasillaInteresanteR(char i, char c, char d, boo
 		if (d=='C') visitadas_derecha=visitadas[pos_d.first][pos_d.second];
 		
 		int minimo = std::min(visitadas_centro, std::min(visitadas_izquierda, visitadas_derecha));
-
+		
+		
 		if (visitadas_centro == minimo) return 2;
     		if (visitadas_izquierda == minimo) return 1;
     		return 3;
-	}
+    	}
+	
 	return 0; //se queda donde esta
 }
 
@@ -272,7 +274,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 							accion=TURN_SR;
 						}else{ //tiene que girar a la izquierda
 						//cout << "tengo que girar a la izquierda" << endl;
-							giro45Izq=2;
+							giro45Izq=4; //antes estaba en 2
 							accion=TURN_SR;
 						}
 					
@@ -302,7 +304,12 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	actualMia[0]=sensores.superficie[1];
 	actualMia[1]=sensores.superficie[2]; 
 	actualMia[2]=sensores.superficie[3];
-	visitadas[sensores.posF][sensores.posC]++;
+	if(sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC) {
+		visitadas[sensores.posF][sensores.posC]++;
+	}
+	posAnteriorF=sensores.posF;
+	posAnteriorC=sensores.posC;
+	//cout << "he actualizado mi casilla de veces visitadas, ahora vale" << visitadas[sensores.posF][sensores.posC] << endl;
 	rumbo_anterior=sensores.rumbo;
 	return accion;
 	
