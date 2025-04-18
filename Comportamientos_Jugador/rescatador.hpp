@@ -18,6 +18,12 @@ public:
     tiene_zapatillas=false;
     giro45Izq=0;
     actualMia[0]='P'; actualMia[1]='P'; actualMia[2]='P';
+    visitadas = std::vector<std::vector<int>>(
+    mapaResultado.size(),
+    std::vector<int>(mapaResultado[0].size(), 0)
+    
+);
+
   }
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
@@ -47,6 +53,8 @@ private:
 	int giro45Izq=0;
 	char actualMia[3];
 	int rumbo_anterior;
+	vector<vector<int>> visitadas;
+	pair<int, int> pos_c, pos_i, pos_d;
 };
 
 #endif
