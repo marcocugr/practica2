@@ -145,6 +145,23 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 
 }
 
+int ComportamientoRescatador::mejorOpcion(bool zap){ //veo las opciones que tiene actualmente en su derecha e izquierda en el caso de que se haya quedado sin salida
+
+	//llegar al puesto base y acabar
+	if (actualMia[0]=='X') return 1;
+	else if (actualMia[2]=='X') return 3;
+	
+	else if(!zap){ //pillar zapatillas
+		if(actualMia[0]=='D') return 1;
+		else if(actualMia[2]=='D') return 3;
+	}
+	//avanzar por camino
+	if (actualMia[0]=='C') return 1;
+	else if (actualMia[2]=='C') return 3;
+	
+	return 0; //se queda donde esta
+}
+
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensores)
 {
 	Action accion;
@@ -180,21 +197,58 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 		switch(pos){
 			case 2:
 				accion=WALK; //si la mejor es la que tengo en frente, avanzo
-				cout << "estoy en case 2" << endl;
 				break;
+				
 			case 1:
 				giro45Izq=1; //si la mejor es la que tengo a la izquierda, 45 grados, los giro
 				accion=TURN_L;
-				cout << "estoy en case 1" << endl;
 				break;
+				
 			case 3:
 				accion=TURN_SR; // si la mejor es la que tengo a la derecha 45 grados, los giro
-				cout << "estoy en case 3" << endl;
 				break;
-			case 0: //hay que cambiar este observando el mapa
-				accion=TURN_SR;	//si no puedo hacer nada, giro a la izq 
-				giro45Izq=1;
-				cout << "estoy en case 0" << endl;
+				
+			case 0: //si no hay salida
+			cout << "estoy en case 0, porque no hay salida de frente, buscando un lado" << endl;
+				int mejor=0; int rumbo_deseado;
+				mejor=mejorOpcion(tiene_zapatillas);	//veo donde es mejor ir, di izquierda o derecha
+				if(mejor==0){ //si no habia salida, se da media vuelta 180º
+					cout << "no podia seguir ni a derecha ni a izquierda, me doy la vuelta" << endl;
+					giro45Izq=3;
+					accion=TURN_SR;
+					
+				} else { //si es el camino izquierdo o derecho
+				cout << "puedo seguir por derecha o izquierda" << endl;
+					int rumbo_deseado = (mejor == 1) ? (rumbo_anterior - 1 + 8) % 8 : (rumbo_anterior + 1) % 8; //veo cual de los dos es y ajustamos cual es la direccion deseada, si izquierda o derecha
+				int diferencia = (rumbo_deseado - sensores.rumbo); //deseado menos actual nos dasu proximo rumbo osea derecha o izquierda
+				bool esDiagonal = (rumbo_deseado % 2 != 0);
+				
+					if(esDiagonal==false){
+					cout << "estoy en una direccion diagonal" << endl;
+						if(diferencia>=0){ //tiene que girar a la derecha
+						cout << "tengo que girar a la derecha" << endl;
+							giro45Izq=1;
+							accion=TURN_SR;
+						}else{ //tiene que girar a la izquierda
+						cout << "tengo que girar a la izquierda" << endl;
+							giro45Izq=2;
+							accion=TURN_SR;
+						}
+					
+					} else {
+					cout << "estoy en una direccion horizontal" << endl;
+						if(diferencia>=0){ //tiene que girar a la derecha
+						cout << "tengo que girar a la derecha" << endl;
+							accion=TURN_L;
+						}else{ //tiene que girar a la izquierda
+						cout << "tengo que girar a la izquierda" << endl;
+							giro45Izq=5;
+							accion=TURN_SR;
+						}
+					}
+				
+				}
+				
 				break;
 		}
 	
@@ -203,6 +257,10 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	
 	//Devolver la siguiente acion a hacer
 	last_action=accion;
+	actualMia[0]=sensores.superficie[1];
+	actualMia[1]=sensores.superficie[2]; 
+	actualMia[2]=sensores.superficie[3];
+	rumbo_anterior=sensores.rumbo;
 	return accion;
 	
 }
