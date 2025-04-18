@@ -239,7 +239,8 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 					cout << "estoy en una direccion horizontal" << endl;
 						if(diferencia>=0){ //tiene que girar a la derecha
 						cout << "tengo que girar a la derecha" << endl;
-							accion=TURN_L;
+							giro45Izq=1;
+							accion=TURN_SR;
 						}else{ //tiene que girar a la izquierda
 						cout << "tengo que girar a la izquierda" << endl;
 							giro45Izq=5;
