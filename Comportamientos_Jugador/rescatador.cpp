@@ -1,4 +1,5 @@
 #include "../Comportamientos_Jugador/rescatador.hpp"
+#include <iostream>
 #include "motorlib/util.h"
 
 
@@ -34,24 +35,24 @@ int ComportamientoRescatador::interact(Action accion, int valor)
 }
 
 int ComportamientoRescatador::VeoCasillaInteresanteR(char i, char c, char d, bool zap){
-	if(c=='X') return 2;
+	if(c=='X') return 2; //llegar al puesto base y acabar
 	else if (i=='X') return 1;
 	else if (d=='X') return 3;
-	else if(!zap){
+	else if(!zap){ //pillar zapatillas
 		if(c=='D') return 2;
 		else if(i=='D') return 1;
 		else if(d=='D') return 3;
 	}
-	if (c=='C') return 2;
+	if (c=='C') return 2; //avanzar por camino
 	else if (i=='C') return 1;
 	else if (d=='C') return 3;
-	else return 0;
+	else return 0; //se queda donde esta
 }
 
 char ComportamientoRescatador::ViablePorAlturaR(char casilla, int dif, bool zap){
-	if(abs(dif)<=1 or (zap and abs(dif)<=2))
+	if(abs(dif)<=1 or (zap and abs(dif)<=2)) //si puede pasar, es valida
 		return casilla;
-	else
+	else //sino es valida la marca como que no puede pasar
 		return 'P';
 }
 
@@ -62,7 +63,7 @@ bool ComportamientoRescatador::ChocaConAuxiliar(char frente){
 void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores){
 
 	m[sensores.posF][sensores.posC]=sensores.superficie[0];
-	a[sensores.posF][sensores.posC]=sensores.superficie[0];
+	a[sensores.posF][sensores.posC]=sensores.cota[0];
 	
 	int pos=1;
 	switch(sensores.rumbo){
@@ -71,36 +72,36 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			m[sensores.posF-1][sensores.posC-1]=sensores.superficie[1];
 			m[sensores.posF-1][sensores.posC]=sensores.superficie[2];
 			m[sensores.posF-1][sensores.posC+1]=sensores.superficie[3];
-			a[sensores.posF-1][sensores.posC-1]=sensores.superficie[1];
-			a[sensores.posF-1][sensores.posC]=sensores.superficie[2];
-			a[sensores.posF-1][sensores.posC+1]=sensores.superficie[3];
+			a[sensores.posF-1][sensores.posC-1]=sensores.cota[1];
+			a[sensores.posF-1][sensores.posC]=sensores.cota[2];
+			a[sensores.posF-1][sensores.posC+1]=sensores.cota[3];
 			break;
 			
 		case noreste: //bien
 			m[sensores.posF-1][sensores.posC]=sensores.superficie[1];
 			m[sensores.posF-1][sensores.posC+1]=sensores.superficie[2];
 			m[sensores.posF][sensores.posC+1]=sensores.superficie[3];
-			a[sensores.posF-1][sensores.posC]=sensores.superficie[1];
-			a[sensores.posF-1][sensores.posC+1]=sensores.superficie[2];
-			a[sensores.posF][sensores.posC+1]=sensores.superficie[3];
+			a[sensores.posF-1][sensores.posC]=sensores.cota[1];
+			a[sensores.posF-1][sensores.posC+1]=sensores.cota[2];
+			a[sensores.posF][sensores.posC+1]=sensores.cota[3];
 			break;
 			
 		case este: //bien
 			m[sensores.posF-1][sensores.posC+1]=sensores.superficie[1];
 			m[sensores.posF][sensores.posC+1]=sensores.superficie[2];
 			m[sensores.posF+1][sensores.posC+1]=sensores.superficie[3];
-			a[sensores.posF-1][sensores.posC+1]=sensores.superficie[1];
-			a[sensores.posF][sensores.posC+1]=sensores.superficie[2];
-			a[sensores.posF+1][sensores.posC+1]=sensores.superficie[3];
+			a[sensores.posF-1][sensores.posC+1]=sensores.cota[1];
+			a[sensores.posF][sensores.posC+1]=sensores.cota[2];
+			a[sensores.posF+1][sensores.posC+1]=sensores.cota[3];
 			break;
 		
 		case sureste:
 			m[sensores.posF][sensores.posC+1]=sensores.superficie[1];
 			m[sensores.posF+1][sensores.posC+1]=sensores.superficie[2];
 			m[sensores.posF+1][sensores.posC]=sensores.superficie[3];
-			a[sensores.posF][sensores.posC+1]=sensores.superficie[1];
-			a[sensores.posF+1][sensores.posC+1]=sensores.superficie[2];
-			a[sensores.posF+1][sensores.posC]=sensores.superficie[3];
+			a[sensores.posF][sensores.posC+1]=sensores.cota[1];
+			a[sensores.posF+1][sensores.posC+1]=sensores.cota[2];
+			a[sensores.posF+1][sensores.posC]=sensores.cota[3];
 			break;
 			
 		
@@ -108,36 +109,36 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			m[sensores.posF+1][sensores.posC+1]=sensores.superficie[1];
 			m[sensores.posF+1][sensores.posC]=sensores.superficie[2];
 			m[sensores.posF+1][sensores.posC-1]=sensores.superficie[3];
-			a[sensores.posF+1][sensores.posC+1]=sensores.superficie[1];
-			a[sensores.posF+1][sensores.posC]=sensores.superficie[2];
-			a[sensores.posF+1][sensores.posC-1]=sensores.superficie[3];
+			a[sensores.posF+1][sensores.posC+1]=sensores.cota[1];
+			a[sensores.posF+1][sensores.posC]=sensores.cota[2];
+			a[sensores.posF+1][sensores.posC-1]=sensores.cota[3];
 			break;
 		
 		case suroeste:
 			m[sensores.posF+1][sensores.posC]=sensores.superficie[1];
 			m[sensores.posF+1][sensores.posC-1]=sensores.superficie[2];
 			m[sensores.posF][sensores.posC-1]=sensores.superficie[3];
-			a[sensores.posF+1][sensores.posC]=sensores.superficie[1];
-			a[sensores.posF+1][sensores.posC-1]=sensores.superficie[2];
-			a[sensores.posF][sensores.posC-1]=sensores.superficie[3];
+			a[sensores.posF+1][sensores.posC]=sensores.cota[1];
+			a[sensores.posF+1][sensores.posC-1]=sensores.cota[2];
+			a[sensores.posF][sensores.posC-1]=sensores.cota[3];
 			break;
 		
 		case oeste: //bien
 			m[sensores.posF+1][sensores.posC-1]=sensores.superficie[1];
 			m[sensores.posF][sensores.posC-1]=sensores.superficie[2];
 			m[sensores.posF-1][sensores.posC-1]=sensores.superficie[3];
-			a[sensores.posF+1][sensores.posC-1]=sensores.superficie[1];
-			a[sensores.posF][sensores.posC-1]=sensores.superficie[2];
-			a[sensores.posF-1][sensores.posC-1]=sensores.superficie[3];
+			a[sensores.posF+1][sensores.posC-1]=sensores.cota[1];
+			a[sensores.posF][sensores.posC-1]=sensores.cota[2];
+			a[sensores.posF-1][sensores.posC-1]=sensores.cota[3];
 			break;
 		
 		case noroeste:
 			m[sensores.posF][sensores.posC-1]=sensores.superficie[1];
 			m[sensores.posF-1][sensores.posC-1]=sensores.superficie[2];
 			m[sensores.posF-1][sensores.posC]=sensores.superficie[3];
-			a[sensores.posF][sensores.posC-1]=sensores.superficie[1];
-			a[sensores.posF-1][sensores.posC-1]=sensores.superficie[2];
-			a[sensores.posF-1][sensores.posC]=sensores.superficie[3];
+			a[sensores.posF][sensores.posC-1]=sensores.cota[1];
+			a[sensores.posF-1][sensores.posC-1]=sensores.cota[2];
+			a[sensores.posF-1][sensores.posC]=sensores.cota[3];
 			break;
 			
 	}
@@ -149,41 +150,51 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	Action accion;
 	// El comportamiento de seguir un camino hasta encontrar un puesto base.
 	// Actualizacion de variables de estado
-	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores);
-	if(sensores.superficie[0]=='D'){
+	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores); //actualiza el mapade casillas y alturas8
+	if(sensores.superficie[0]=='D'){ //si esta encima de unas zapatillas se las pone
 		tiene_zapatillas=true;
 	}
 	
 	// Definicion del comportamiento
-	if(sensores.superficie[0]=='X'){ //Llegue al objetivo
+	if(sensores.superficie[0]=='X'){ //si he acabado me quedo quieto
 		accion=IDLE;
 	}
-	else if (giro45Izq!=0){ //Estoy girando TURN_SL
+	else if (giro45Izq!=0){ //si estoy girando sigo girando
 		accion=TURN_SR;
+		cout << "estoy girando" << endl;
 		giro45Izq--;
 	}
-	else if(ChocaConAuxiliar(sensores.agentes[2])==true){
+	else if(ChocaConAuxiliar(sensores.agentes[2])==true){//si he chocado giro a la izquierda
+		cout << "estoy enfrente del auxiliar" << endl;
 		accion=TURN_L;
 	}
 	
 	else {
+		//en estos 3 char, filtro y veo a ver si puedo o no pasar por la altura
 		char i= ViablePorAlturaR(sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
 		char c= ViablePorAlturaR(sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
 		char d= ViablePorAlturaR(sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
+		
+		//elijo de entre las posibles casillas
 		int pos=VeoCasillaInteresanteR(i, c, d, tiene_zapatillas);
 		switch(pos){
 			case 2:
-				accion=WALK;
+				accion=WALK; //si la mejor es la que tengo en frente, avanzo
+				cout << "estoy en case 2" << endl;
 				break;
 			case 1:
-				giro45Izq=1;
+				giro45Izq=1; //si la mejor es la que tengo a la izquierda, 45 grados, los giro
 				accion=TURN_L;
+				cout << "estoy en case 1" << endl;
 				break;
 			case 3:
-				accion=TURN_SR;
+				accion=TURN_SR; // si la mejor es la que tengo a la derecha 45 grados, los giro
+				cout << "estoy en case 3" << endl;
 				break;
-			case 0:
-				accion=TURN_L;
+			case 0: //hay que cambiar este observando el mapa
+				accion=TURN_SR;	//si no puedo hacer nada, giro a la izq 
+				giro45Izq=1;
+				cout << "estoy en case 0" << endl;
 				break;
 		}
 	
