@@ -54,12 +54,98 @@ bool ComportamientoAuxiliar::ChocaConRescatador(char frente){
 	return (frente=='r');
 }
 
+void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores){
+
+	m[sensores.posF][sensores.posC]=sensores.superficie[0];
+	a[sensores.posF][sensores.posC]=sensores.superficie[0];
+	
+	int pos=1;
+	switch(sensores.rumbo){
+	
+		case norte: //bien
+			m[sensores.posF-1][sensores.posC-1]=sensores.superficie[1];
+			m[sensores.posF-1][sensores.posC]=sensores.superficie[2];
+			m[sensores.posF-1][sensores.posC+1]=sensores.superficie[3];
+			a[sensores.posF-1][sensores.posC-1]=sensores.superficie[1];
+			a[sensores.posF-1][sensores.posC]=sensores.superficie[2];
+			a[sensores.posF-1][sensores.posC+1]=sensores.superficie[3];
+			break;
+			
+		case noreste: //bien
+			m[sensores.posF-1][sensores.posC]=sensores.superficie[1];
+			m[sensores.posF-1][sensores.posC+1]=sensores.superficie[2];
+			m[sensores.posF][sensores.posC+1]=sensores.superficie[3];
+			a[sensores.posF-1][sensores.posC]=sensores.superficie[1];
+			a[sensores.posF-1][sensores.posC+1]=sensores.superficie[2];
+			a[sensores.posF][sensores.posC+1]=sensores.superficie[3];
+			break;
+			
+		case este: //bien
+			m[sensores.posF-1][sensores.posC+1]=sensores.superficie[1];
+			m[sensores.posF][sensores.posC+1]=sensores.superficie[2];
+			m[sensores.posF+1][sensores.posC+1]=sensores.superficie[3];
+			a[sensores.posF-1][sensores.posC+1]=sensores.superficie[1];
+			a[sensores.posF][sensores.posC+1]=sensores.superficie[2];
+			a[sensores.posF+1][sensores.posC+1]=sensores.superficie[3];
+			break;
+		
+		case sureste:
+			m[sensores.posF][sensores.posC+1]=sensores.superficie[1];
+			m[sensores.posF+1][sensores.posC+1]=sensores.superficie[2];
+			m[sensores.posF+1][sensores.posC]=sensores.superficie[3];
+			a[sensores.posF][sensores.posC+1]=sensores.superficie[1];
+			a[sensores.posF+1][sensores.posC+1]=sensores.superficie[2];
+			a[sensores.posF+1][sensores.posC]=sensores.superficie[3];
+			break;
+			
+		
+		case sur: //bien
+			m[sensores.posF+1][sensores.posC+1]=sensores.superficie[1];
+			m[sensores.posF+1][sensores.posC]=sensores.superficie[2];
+			m[sensores.posF+1][sensores.posC-1]=sensores.superficie[3];
+			a[sensores.posF+1][sensores.posC+1]=sensores.superficie[1];
+			a[sensores.posF+1][sensores.posC]=sensores.superficie[2];
+			a[sensores.posF+1][sensores.posC-1]=sensores.superficie[3];
+			break;
+		
+		case suroeste:
+			m[sensores.posF+1][sensores.posC]=sensores.superficie[1];
+			m[sensores.posF+1][sensores.posC-1]=sensores.superficie[2];
+			m[sensores.posF][sensores.posC-1]=sensores.superficie[3];
+			a[sensores.posF+1][sensores.posC]=sensores.superficie[1];
+			a[sensores.posF+1][sensores.posC-1]=sensores.superficie[2];
+			a[sensores.posF][sensores.posC-1]=sensores.superficie[3];
+			break;
+		
+		case oeste: //bien
+			m[sensores.posF+1][sensores.posC-1]=sensores.superficie[1];
+			m[sensores.posF][sensores.posC-1]=sensores.superficie[2];
+			m[sensores.posF-1][sensores.posC-1]=sensores.superficie[3];
+			a[sensores.posF+1][sensores.posC-1]=sensores.superficie[1];
+			a[sensores.posF][sensores.posC-1]=sensores.superficie[2];
+			a[sensores.posF-1][sensores.posC-1]=sensores.superficie[3];
+			break;
+		
+		case noroeste:
+			m[sensores.posF][sensores.posC-1]=sensores.superficie[1];
+			m[sensores.posF-1][sensores.posC-1]=sensores.superficie[2];
+			m[sensores.posF-1][sensores.posC]=sensores.superficie[3];
+			a[sensores.posF][sensores.posC-1]=sensores.superficie[1];
+			a[sensores.posF-1][sensores.posC-1]=sensores.superficie[2];
+			a[sensores.posF-1][sensores.posC]=sensores.superficie[3];
+			break;
+			
+	}
+
+}
+
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 {
 	// El comportamiento de seguir un camino hasta encontrar un puesto base.
 	Action accion;
 	// El comportamiento de seguir un camino hasta encontrar un puesto base.
 	// Actualizacion de variables de estado
+	SituarSensorEnMapaA(mapaResultado, mapaCotas, sensores);
 	if(sensores.superficie[0]=='D'){
 		tiene_zapatillas=true;
 	}

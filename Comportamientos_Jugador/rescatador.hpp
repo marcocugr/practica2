@@ -31,6 +31,7 @@ public:
   int VeoCasillaInteresanteR(char i, char c, char d, bool zap);
   char ViablePorAlturaR(char casilla, int dif, bool zap);
   bool ChocaConAuxiliar(char frente);
+  void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores);
 
   Action ComportamientoRescatadorNivel_0(Sensores sensores);
   Action ComportamientoRescatadorNivel_1(Sensores sensores);

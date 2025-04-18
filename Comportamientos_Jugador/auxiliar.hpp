@@ -23,12 +23,15 @@ public:
     // Inicializar Variables de Estado Niveles 2,3
   }
   ComportamientoAuxiliar(const ComportamientoAuxiliar &comport) : Comportamiento(comport) {}
+  
   ~ComportamientoAuxiliar() {}
 
   Action think(Sensores sensores);
+  
   int VeoCasillaInteresanteA(char i, char c, char d);
   char ViablePorAlturaA(char casilla, int dif);
   bool ChocaConRescatador(char frente);
+  void SituarSensorEnMapaA(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores);
 
   int interact(Action accion, int valor);
 
