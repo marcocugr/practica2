@@ -58,13 +58,22 @@ int ComportamientoRescatador::VeoCasillaInteresanteR(char i, char c, char d, boo
 		if (d=='C') visitadas_derecha=visitadas[pos_d.first][pos_d.second];
 		
 		int minimo = std::min(visitadas_centro, std::min(visitadas_izquierda, visitadas_derecha));
+		cout << "el minimo vale " << minimo << endl;
+		cout << "Visitas - Centro: " << visitadas_centro << ", Izquierda: " << visitadas_izquierda << ", Derecha: " << visitadas_derecha << endl;
+
 		
-		
-		if (visitadas_centro == minimo) return 2;
-    		if (visitadas_izquierda == minimo) return 1;
-    		return 3;
-    	}
-	
+			if (visitadas_centro == minimo){
+				cout << "devuelvo 2" << endl; return 2;
+			}
+	    		if (visitadas_izquierda == minimo){
+	    		 cout << "devuelvo 1" << endl;
+	    		 return 1;
+	    		 }
+	    		cout << "devuelvo 3" << endl;
+	    		return 3;
+    	
+	}
+	cout << "devuelvo 0" << endl;
 	return 0; //se queda donde esta
 }
 
@@ -94,9 +103,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF-1][sensores.posC-1]=sensores.cota[1];
 			a[sensores.posF-1][sensores.posC]=sensores.cota[2];
 			a[sensores.posF-1][sensores.posC+1]=sensores.cota[3];
-			pos_i.first=sensores.posF-1; pos_c.second=sensores.posC-1;
+			pos_i.first=sensores.posF-1; pos_i.second=sensores.posC-1;
 			pos_c.first=sensores.posF-1; pos_c.second=sensores.posC;
-			pos_d.first=sensores.posF-1; pos_c.second=sensores.posC+1;
+			pos_d.first=sensores.posF-1; pos_d.second=sensores.posC+1;
 			break;
 			
 		case noreste: //bien
@@ -106,9 +115,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF-1][sensores.posC]=sensores.cota[1];
 			a[sensores.posF-1][sensores.posC+1]=sensores.cota[2];
 			a[sensores.posF][sensores.posC+1]=sensores.cota[3];
-			pos_i.first=sensores.posF-1; pos_c.second=sensores.posC;
+			pos_i.first=sensores.posF-1; pos_i.second=sensores.posC;
 			pos_c.first=sensores.posF-1; pos_c.second=sensores.posC+1;
-			pos_d.first=sensores.posF; pos_c.second=sensores.posC+1;
+			pos_d.first=sensores.posF; pos_d.second=sensores.posC+1;
 			break;
 			
 		case este: //bien
@@ -118,9 +127,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF-1][sensores.posC+1]=sensores.cota[1];
 			a[sensores.posF][sensores.posC+1]=sensores.cota[2];
 			a[sensores.posF+1][sensores.posC+1]=sensores.cota[3];
-			pos_i.first=sensores.posF-1; pos_c.second=sensores.posC+1;
+			pos_i.first=sensores.posF-1; pos_i.second=sensores.posC+1;
 			pos_c.first=sensores.posF; pos_c.second=sensores.posC+1;
-			pos_d.first=sensores.posF+1; pos_c.second=sensores.posC+1;
+			pos_d.first=sensores.posF+1; pos_d.second=sensores.posC+1;
 			break;
 		
 		case sureste: //bien
@@ -130,9 +139,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF][sensores.posC+1]=sensores.cota[1];
 			a[sensores.posF+1][sensores.posC+1]=sensores.cota[2];
 			a[sensores.posF+1][sensores.posC]=sensores.cota[3];
-			pos_i.first=sensores.posF; pos_c.second=sensores.posC+1;
+			pos_i.first=sensores.posF; pos_i.second=sensores.posC+1;
 			pos_c.first=sensores.posF+1; pos_c.second=sensores.posC+1;
-			pos_d.first=sensores.posF+1; pos_c.second=sensores.posC;
+			pos_d.first=sensores.posF+1; pos_d.second=sensores.posC;
 			break;
 			
 		
@@ -143,9 +152,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF+1][sensores.posC+1]=sensores.cota[1];
 			a[sensores.posF+1][sensores.posC]=sensores.cota[2];
 			a[sensores.posF+1][sensores.posC-1]=sensores.cota[3];
-			pos_i.first=sensores.posF+1; pos_c.second=sensores.posC+1;
+			pos_i.first=sensores.posF+1; pos_i.second=sensores.posC+1;
 			pos_c.first=sensores.posF+1; pos_c.second=sensores.posC;
-			pos_d.first=sensores.posF+1; pos_c.second=sensores.posC-1;
+			pos_d.first=sensores.posF+1; pos_d.second=sensores.posC-1;
 			break;
 		
 		case suroeste: //bien
@@ -155,9 +164,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF+1][sensores.posC]=sensores.cota[1];
 			a[sensores.posF+1][sensores.posC-1]=sensores.cota[2];
 			a[sensores.posF][sensores.posC-1]=sensores.cota[3];
-			pos_i.first=sensores.posF+1; pos_c.second=sensores.posC;
+			pos_i.first=sensores.posF+1; pos_i.second=sensores.posC;
 			pos_c.first=sensores.posF+1; pos_c.second=sensores.posC-1;
-			pos_d.first=sensores.posF; pos_c.second=sensores.posC-1;
+			pos_d.first=sensores.posF; pos_d.second=sensores.posC-1;
 			break;
 		
 		case oeste: //bien
@@ -167,9 +176,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF+1][sensores.posC-1]=sensores.cota[1];
 			a[sensores.posF][sensores.posC-1]=sensores.cota[2];
 			a[sensores.posF-1][sensores.posC-1]=sensores.cota[3];
-			pos_i.first=sensores.posF+1; pos_c.second=sensores.posC-1;
+			pos_i.first=sensores.posF+1; pos_i.second=sensores.posC-1;
 			pos_c.first=sensores.posF; pos_c.second=sensores.posC-1;
-			pos_d.first=sensores.posF-1; pos_c.second=sensores.posC-1;
+			pos_d.first=sensores.posF-1; pos_d.second=sensores.posC-1;
 			break;
 		
 		case noroeste: //bien
@@ -179,9 +188,9 @@ void ComportamientoRescatador::SituarSensorEnMapaR(vector<vector<unsigned char>>
 			a[sensores.posF][sensores.posC-1]=sensores.cota[1];
 			a[sensores.posF-1][sensores.posC-1]=sensores.cota[2];
 			a[sensores.posF-1][sensores.posC]=sensores.cota[3];
-			pos_i.first=sensores.posF; pos_c.second=sensores.posC-1;
+			pos_i.first=sensores.posF; pos_i.second=sensores.posC-1;
 			pos_c.first=sensores.posF-1; pos_c.second=sensores.posC-1;
-			pos_d.first=sensores.posF-1; pos_c.second=sensores.posC;
+			pos_d.first=sensores.posF-1; pos_d.second=sensores.posC;
 			break;
 			
 	}
@@ -210,7 +219,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	Action accion;
 	// El comportamiento de seguir un camino hasta encontrar un puesto base.
 	// Actualizacion de variables de estado
-	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores); //actualiza el mapade casillas y alturas8
+	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores); //actualiza el mapade casillas y alturas
 	if(sensores.superficie[0]=='D'){ //si esta encima de unas zapatillas se las pone
 		tiene_zapatillas=true;
 	}
@@ -221,11 +230,15 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	}
 	else if (giro45Izq!=0){ //si estoy girando sigo girando
 		accion=TURN_SR;
-		//cout << "estoy girando" << endl;
+		cout << "estoy girando" << endl;
 		giro45Izq--;
+		
+		
 	}
 	else if(ChocaConAuxiliar(sensores.agentes[2])==true){//si he chocado giro a la izquierda
-		//cout << "estoy enfrente del auxiliar" << endl;
+		cout << "estoy enfrente del auxiliar" << endl;
+		//giro45Izq=3;
+		//accion=TURN_SR;
 		accion=TURN_L;
 	}
 	
@@ -239,15 +252,18 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 		int pos=VeoCasillaInteresanteR(i, c, d, tiene_zapatillas);
 		switch(pos){
 			case 2:
+				cout << "caso 2, voy recto" << endl;
 				accion=WALK; //si la mejor es la que tengo en frente, avanzo
 				break;
 				
 			case 1:
+				cout << "caso 1, voy izquierda 45" << endl;
 				giro45Izq=1; //si la mejor es la que tengo a la izquierda, 45 grados, los giro
 				accion=TURN_L;
 				break;
 				
 			case 3:
+				cout << "caso 3, voy derecha 45" << endl;
 				accion=TURN_SR; // si la mejor es la que tengo a la derecha 45 grados, los giro
 				break;
 				
@@ -321,7 +337,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	}
 	posAnteriorF=sensores.posF;
 	posAnteriorC=sensores.posC;
-	//cout << "he actualizado mi casilla de veces visitadas, ahora vale" << visitadas[sensores.posF][sensores.posC] << endl;
+	cout << "he actualizado mi casilla de veces visitadas, ahora vale" << visitadas[sensores.posF][sensores.posC] << endl << endl;
 	rumbo_anterior=sensores.rumbo;
 	return accion;
 	

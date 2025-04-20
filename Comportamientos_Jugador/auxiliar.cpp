@@ -90,9 +90,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF-1][sensores.posC-1]=sensores.cota[1];
 			a[sensores.posF-1][sensores.posC]=sensores.cota[2];
 			a[sensores.posF-1][sensores.posC+1]=sensores.cota[3];
-			pos_i.first=sensores.posF-1; pos_c.second=sensores.posC-1;
+			pos_i.first=sensores.posF-1; pos_i.second=sensores.posC-1;
 			pos_c.first=sensores.posF-1; pos_c.second=sensores.posC;
-			pos_d.first=sensores.posF-1; pos_c.second=sensores.posC+1;
+			pos_d.first=sensores.posF-1; pos_d.second=sensores.posC+1;
 			break;
 			
 		case noreste: //bien
@@ -102,9 +102,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF-1][sensores.posC]=sensores.cota[1];
 			a[sensores.posF-1][sensores.posC+1]=sensores.cota[2];
 			a[sensores.posF][sensores.posC+1]=sensores.cota[3];
-			pos_i.first=sensores.posF-1; pos_c.second=sensores.posC;
+			pos_i.first=sensores.posF-1; pos_i.second=sensores.posC;
 			pos_c.first=sensores.posF-1; pos_c.second=sensores.posC+1;
-			pos_d.first=sensores.posF; pos_c.second=sensores.posC+1;
+			pos_d.first=sensores.posF; pos_d.second=sensores.posC+1;
 			break;
 			
 		case este: //bien
@@ -114,9 +114,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF-1][sensores.posC+1]=sensores.cota[1];
 			a[sensores.posF][sensores.posC+1]=sensores.cota[2];
 			a[sensores.posF+1][sensores.posC+1]=sensores.cota[3];
-			pos_i.first=sensores.posF-1; pos_c.second=sensores.posC+1;
+			pos_i.first=sensores.posF-1; pos_i.second=sensores.posC+1;
 			pos_c.first=sensores.posF; pos_c.second=sensores.posC+1;
-			pos_d.first=sensores.posF+1; pos_c.second=sensores.posC+1;
+			pos_d.first=sensores.posF+1; pos_d.second=sensores.posC+1;
 			break;
 		
 		case sureste: //bien
@@ -126,9 +126,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF][sensores.posC+1]=sensores.cota[1];
 			a[sensores.posF+1][sensores.posC+1]=sensores.cota[2];
 			a[sensores.posF+1][sensores.posC]=sensores.cota[3];
-			pos_i.first=sensores.posF; pos_c.second=sensores.posC+1;
+			pos_i.first=sensores.posF; pos_i.second=sensores.posC+1;
 			pos_c.first=sensores.posF+1; pos_c.second=sensores.posC+1;
-			pos_d.first=sensores.posF+1; pos_c.second=sensores.posC;
+			pos_d.first=sensores.posF+1; pos_d.second=sensores.posC;
 			break;
 			
 		
@@ -139,9 +139,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF+1][sensores.posC+1]=sensores.cota[1];
 			a[sensores.posF+1][sensores.posC]=sensores.cota[2];
 			a[sensores.posF+1][sensores.posC-1]=sensores.cota[3];
-			pos_i.first=sensores.posF+1; pos_c.second=sensores.posC+1;
+			pos_i.first=sensores.posF+1; pos_i.second=sensores.posC+1;
 			pos_c.first=sensores.posF+1; pos_c.second=sensores.posC;
-			pos_d.first=sensores.posF+1; pos_c.second=sensores.posC-1;
+			pos_d.first=sensores.posF+1; pos_d.second=sensores.posC-1;
 			break;
 		
 		case suroeste: //bien
@@ -151,9 +151,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF+1][sensores.posC]=sensores.cota[1];
 			a[sensores.posF+1][sensores.posC-1]=sensores.cota[2];
 			a[sensores.posF][sensores.posC-1]=sensores.cota[3];
-			pos_i.first=sensores.posF+1; pos_c.second=sensores.posC;
+			pos_i.first=sensores.posF+1; pos_i.second=sensores.posC;
 			pos_c.first=sensores.posF+1; pos_c.second=sensores.posC-1;
-			pos_d.first=sensores.posF; pos_c.second=sensores.posC-1;
+			pos_d.first=sensores.posF; pos_d.second=sensores.posC-1;
 			break;
 		
 		case oeste: //bien
@@ -163,9 +163,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF+1][sensores.posC-1]=sensores.cota[1];
 			a[sensores.posF][sensores.posC-1]=sensores.cota[2];
 			a[sensores.posF-1][sensores.posC-1]=sensores.cota[3];
-			pos_i.first=sensores.posF+1; pos_c.second=sensores.posC-1;
+			pos_i.first=sensores.posF+1; pos_i.second=sensores.posC-1;
 			pos_c.first=sensores.posF; pos_c.second=sensores.posC-1;
-			pos_d.first=sensores.posF-1; pos_c.second=sensores.posC-1;
+			pos_d.first=sensores.posF-1; pos_d.second=sensores.posC-1;
 			break;
 		
 		case noroeste: //bien
@@ -175,9 +175,9 @@ void ComportamientoAuxiliar::SituarSensorEnMapaA(vector<vector<unsigned char>> &
 			a[sensores.posF][sensores.posC-1]=sensores.cota[1];
 			a[sensores.posF-1][sensores.posC-1]=sensores.cota[2];
 			a[sensores.posF-1][sensores.posC]=sensores.cota[3];
-			pos_i.first=sensores.posF; pos_c.second=sensores.posC-1;
+			pos_i.first=sensores.posF; pos_i.second=sensores.posC-1;
 			pos_c.first=sensores.posF-1; pos_c.second=sensores.posC-1;
-			pos_d.first=sensores.posF-1; pos_c.second=sensores.posC;
+			pos_d.first=sensores.posF-1; pos_d.second=sensores.posC;
 			break;
 			
 	}
@@ -221,8 +221,8 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 		giro45Izq--;
 	}
 	else if(ChocaConRescatador(sensores.agentes[2])==true){
-		giro45Izq=3;
-		accion=TURN_SR;
+		giro45Izq=1;
+		//accion=TURN_SR;
 	}
 	else {
 		char i= ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
