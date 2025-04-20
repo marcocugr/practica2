@@ -13,7 +13,7 @@ Action ComportamientoRescatador::think(Sensores sensores)
 		accion = ComportamientoRescatadorNivel_0 (sensores);
 		break;
 	case 1:
-		// accion = ComportamientoRescatadorNivel_1 (sensores);
+		accion = ComportamientoRescatadorNivel_1 (sensores);
 		break;
 	case 2:
 		// accion = ComportamientoRescatadorNivel_2 (sensores);
@@ -347,8 +347,249 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	
 }
 
+
+bool ComportamientoRescatador::esValidaR1(char casilla, int energia_actual){
+
+	if(casilla=='B') return false;
+	else if(casilla=='T' && energia_actual>=20) return true;
+	else if (casilla=='A' && energia_actual>=100) return true;
+	else if (casilla=='P') return false;
+	else if (casilla=='C' && energia_actual>=1) return true;
+	else if (casilla=='S' && energia_actual>=2) return true;
+	else if (casilla=='M') return false;
+	else if (casilla=='D' && energia_actual>=1) return true;
+	else if (casilla=='X' && energia_actual>=1) return true;
+	else return false;
+
+}
+
+int ComportamientoRescatador::costeCasillaR1(char casilla){
+
+	if(casilla=='B') return 10000; //para que no la coja ni loco
+	else if(casilla=='T') return 20;
+	else if (casilla=='A') return 100;
+	else if (casilla=='P') return 10000; //para que no la coja ni loco
+	else if (casilla=='C') return 1;
+	else if (casilla=='S') return 2;
+	else if (casilla=='M') return 10000; //para que no la coja ni loco
+	else if (casilla=='D') return 1;
+	else if (casilla=='X') return 1;
+	else return false;
+
+}
+
+int ComportamientoRescatador::VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int energia){
+
+	bool valida_i=esValidaR1(i,energia);
+	bool valida_c=esValidaR1(c,energia);
+	bool valida_d=esValidaR1(d,energia);
+	
+	//prioridad a las zapatillas
+	//if(!zap){ 
+		if(c=='D') return 2;
+		else if(i=='D') return 1;
+		else if(d=='D') return 3;
+	//}
+	
+	//PRIORIZAR CAMINO Y SENDERO
+	int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
+	
+	if(valida_i && (i=='C' || i=='S')){
+		opcion_i=visitadas[pos_i.first][pos_i.second];
+	}
+	if(valida_c && (c=='C' || c=='S')){
+		opcion_c=visitadas[pos_c.first][pos_c.second];
+	}
+	if(valida_d && (d=='C' || d=='S')){
+		opcion_d=visitadas[pos_d.first][pos_d.second];
+	}
+	
+	int menos_visitada_prioridad = std::min(opcion_c, std::min(opcion_d, opcion_i));
+	
+	if(menos_visitada_prioridad!=10000){
+		if(menos_visitada_prioridad==opcion_c) return 2;
+		if(menos_visitada_prioridad==opcion_i) return 1;
+		return 3;
+	}
+	
+	
+	
+	/*
+	//si hay alguna valida que nosea ni camino ni sendero (prioridad)
+	if(valida_i==true || valida_c==true || valida_d==true){
+		int visitadas_centro=10000, visitadas_izquierda=10000, visitadas_derecha=10000; //invalidas osea que no las va a cojer basicamente
+		//cout << "hay almenos una valida" << endl;
+		//ponemos los valores visitados de cada casilla
+		if (valida_c==true) visitadas_centro=visitadas[pos_c.first][pos_c.second];
+		if (valida_i==true) visitadas_izquierda=visitadas[pos_i.first][pos_i.second];
+		if (valida_d==true) visitadas_derecha=visitadas[pos_d.first][pos_d.second];
+		
+		int menos_pasada = std::min(visitadas_centro, std::min(visitadas_izquierda, visitadas_derecha));
+		
+		int coste_i=costeCasillaR1(i);
+		int coste_c=costeCasillaR1(c);
+		int coste_d=costeCasillaR1(d);
+		
+		//cout << "por la que menos se ha transitado vale"<< menos_pasada << endl;
+		
+		int penalizacionVisitas = 5;
+		int prioridad_i = coste_i + visitadas_izquierda * penalizacionVisitas;
+        	int prioridad_c = coste_c + visitadas_centro * penalizacionVisitas;
+        	int prioridad_d = coste_d + visitadas_derecha * penalizacionVisitas;
+
+		 //cout << "Prioridades: I=" << prioridad_i << " C=" << prioridad_c << " D=" << prioridad_d << endl;
+
+        if (prioridad_c <= prioridad_i && prioridad_c <= prioridad_d) return 2;
+        else if (prioridad_i <= prioridad_d) return 1;
+        else return 3;
+	}
+	*/
+	return 0; //se queda donde esta porque no puede avanzar
+}
+
+int ComportamientoRescatador::mejorOpcionR1(bool zap, int energia){ //veo las opciones que tiene actualmente en su derecha e izquierda en el caso de que se haya quedado sin salida SOLO SE USA SI POS ES 0
+
+	//va a la que es valida, priorizando izquierda
+	
+	if(!zap){ //pillar zapatillas
+		if(actualMia[0]=='D') return 1;
+		else if(actualMia[2]=='D') return 3;
+		
+	} else { //va a la que es valida, priorizando izquierda
+		if (esValidaR1(actualMia[0], energia)==true) return 1;
+		else if (esValidaR1(actualMia[2], energia)==true) return 3;
+	}
+	
+	return 0; //si hay encerrona se queda donde esta
+}
+
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensores)
 {
+
+	Action accion;
+	// El comportamiento de seguir un camino hasta encontrar un puesto base.
+	// Actualizacion de variables de estado
+	SituarSensorEnMapaR(mapaResultado, mapaCotas, sensores); //actualiza el mapade casillas y alturas
+	if(sensores.superficie[0]=='D'){ //si esta encima de unas zapatillas se las pone
+		tiene_zapatillas=true;
+	}
+	
+	// Definicion del comportamiento
+	if (giro45Izq!=0){ //si estoy girando sigo girando
+		accion=TURN_SR;
+		giro45Izq--;
+		
+		
+	}
+	else if(doble_giroIzq==true){
+		accion=TURN_L;
+		doble_giroIzq=false;
+	}
+	else if(ChocaConAuxiliar(sensores.agentes[2])==true){//si he chocado giro a la izquierda
+		//giro45Izq=3;
+		//accion=TURN_SR;
+		doble_giroIzq=true;
+		accion=TURN_L;
+	}
+	
+	else {
+		//en estos 3 char, filtro y veo a ver si puedo o no pasar por la altura
+		char i= ViablePorAlturaR(sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
+		char c= ViablePorAlturaR(sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
+		char d= ViablePorAlturaR(sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
+		
+		//elijo de entre las posibles casillas
+		int pos=VeoCasillaInteresanteR1(i, c, d, tiene_zapatillas, sensores.energia);
+		switch(pos){
+			case 2:
+				cout << "hago un WALK" << endl;
+				accion=WALK; //si la mejor es la que tengo en frente, avanzo
+				break;
+				
+			case 1:
+				cout << "hago un giro izq 45º" << endl;
+				giro45Izq=1; //si la mejor es la que tengo a la izquierda, 45 grados, los giro
+				accion=TURN_L;
+				break;
+				
+			case 3:
+				cout << "hago un giro der 45º" << endl;
+				accion=TURN_SR; // si la mejor es la que tengo a la derecha 45 grados, los giro
+				break;
+				
+			case 0: //si no hay salida
+				int mejor=0; int rumbo_deseado;
+				mejor=mejorOpcionR1(tiene_zapatillas, sensores.energia);	//veo donde es mejor ir, di izquierda o derecha
+				if(mejor==0){ //si no habia salida, se da media vuelta 180º
+					//cout << "no podia seguir ni a derecha ni a izquierda, me doy la vuelta" << endl;
+					giro45Izq=3;
+					accion=TURN_SR;
+					
+				} else { //si es el camino izquierdo o derecho
+				//cout << "puedo seguir por derecha o izquierda" << endl;
+					int rumbo_deseado = (mejor == 1) ? (rumbo_anterior - 1 + 8) % 8 : (rumbo_anterior + 1) % 8; //veo cual de los dos es y ajustamos cual es la direccion deseada, si izquierda o derecha
+				/*
+				int diferencia = (rumbo_deseado - sensores.rumbo); //deseado menos actual nos dasu proximo rumbo osea derecha o izquierda
+				
+				*/
+				
+				
+				int diferencia = (rumbo_deseado - sensores.rumbo + 8) % 8; // Esto asegura que la diferencia siempre esté en el rango [0, 7]
+    
+    if (diferencia > 4) {
+        diferencia -= 8; // Normalizamos la diferencia a [-4, 4]
+    }
+				
+				
+				bool esDiagonal = (rumbo_deseado % 2 != 0);
+				
+					if(esDiagonal==false){
+					//cout << "estoy en una direccion diagonal" << endl;
+						if(diferencia>=0){ //tiene que girar a la derecha
+						//cout << "tengo que girar a la derecha" << endl;
+							giro45Izq=1;
+							accion=TURN_SR;
+						}else{ //tiene que girar a la izquierda
+						//cout << "tengo que girar a la izquierda" << endl;
+							giro45Izq=4; //antes estaba en 2
+							accion=TURN_SR;
+						}
+					
+					} else {
+					//cout << "estoy en una direccion horizontal" << endl;
+						if(diferencia>=0){ //tiene que girar a la derecha
+						//cout << "tengo que girar a la derecha" << endl;
+							giro45Izq=1;
+							accion=TURN_SR;
+						}else{ //tiene que girar a la izquierda
+						//cout << "tengo que girar a la izquierda" << endl;
+							giro45Izq=5;
+							accion=TURN_SR;
+						}
+					}
+				
+				}
+				
+				break;
+		}
+	
+	}
+	
+	
+	//Devolver la siguiente acion a hacer
+	last_action=accion;
+	actualMia[0]=sensores.superficie[1];
+	actualMia[1]=sensores.superficie[2]; 
+	actualMia[2]=sensores.superficie[3];
+	if(sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC) {
+		visitadas[sensores.posF][sensores.posC]++;
+	}
+	posAnteriorF=sensores.posF;
+	posAnteriorC=sensores.posC;
+	//cout << "he actualizado mi casilla de veces visitadas, ahora vale" << visitadas[sensores.posF][sensores.posC] << endl;
+	rumbo_anterior=sensores.rumbo;
+	return accion;
+
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensores)
