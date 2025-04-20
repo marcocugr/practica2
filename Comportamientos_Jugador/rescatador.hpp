@@ -24,6 +24,7 @@ public:
     
 );
     posAnteriorF=-1; posAnteriorC=-1;
+    doble_giroIzq=false;
 
   }
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
@@ -57,6 +58,7 @@ private:
 	vector<vector<int>> visitadas;
 	pair<int, int> pos_c, pos_i, pos_d;
 	int posAnteriorF, posAnteriorC;
+	bool doble_giroIzq;
 };
 
 #endif
