@@ -38,6 +38,11 @@ public:
   bool ChocaConRescatador(char frente);
   void SituarSensorEnMapaA(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores);
   int mejorOpcionA(bool zap);
+  
+  bool esValidaA1(char casilla, int energia_actual);
+  int VeoCasillaInteresanteA1(char i, char c, char d, bool zap, int energia, int fila, int col);
+  int mejorOpcionA1(bool zap, int energia);
+  int costeCasillaA1(char casilla, bool zap);
 
   int interact(Action accion, int valor);
 

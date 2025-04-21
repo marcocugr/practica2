@@ -42,6 +42,7 @@ public:
   bool ChocaConAuxiliar(char frente);
   void SituarSensorEnMapaR(vector<vector<unsigned char>> &m, vector<vector<unsigned char>> &a, Sensores sensores);
   int mejorOpcion(bool zap);
+  
   bool esValidaR1(char casilla, int energia_actual);
   int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int energia, int fila, int col);
   int mejorOpcionR1(bool zap, int energia);

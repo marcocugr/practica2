@@ -566,7 +566,7 @@ int ComportamientoRescatador::costeCasillaR1(char casilla){
 	else if (casilla=='M') return 10000; //para que no la coja ni loco
 	else if (casilla=='D') return 1;
 	else if (casilla=='X') return 1;
-	else return false;
+	else return 100000;
 
 }
 
