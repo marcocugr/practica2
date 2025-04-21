@@ -570,72 +570,96 @@ int ComportamientoRescatador::costeCasillaR1(char casilla){
 
 }
 
-int ComportamientoRescatador::VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int energia){
+int ComportamientoRescatador::VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int energia, int fila, int col){
 
 	bool valida_i=esValidaR1(i,energia);
 	bool valida_c=esValidaR1(c,energia);
 	bool valida_d=esValidaR1(d,energia);
-	
-	//prioridad a las zapatillas
-	//if(!zap){ 
-		if(c=='D') return 2;
-		else if(i=='D') return 1;
-		else if(d=='D') return 3;
-	//}
-	
-	//PRIORIZAR CAMINO Y SENDERO
-	int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
-	
-	if(valida_i && (i=='C' || i=='S')){
-		opcion_i=visitadas[pos_i.first][pos_i.second];
-	}
-	if(valida_c && (c=='C' || c=='S')){
-		opcion_c=visitadas[pos_c.first][pos_c.second];
-	}
-	if(valida_d && (d=='C' || d=='S')){
-		opcion_d=visitadas[pos_d.first][pos_d.second];
-	}
-	
-	int menos_visitada_prioridad = std::min(opcion_c, std::min(opcion_d, opcion_i));
-	
-	if(menos_visitada_prioridad!=10000){
-		if(menos_visitada_prioridad==opcion_c) return 2;
-		if(menos_visitada_prioridad==opcion_i) return 1;
-		return 3;
-	}
+	int visitadas_actual=visitadas[fila][col];
 	
 	
+	if (valida_i || valida_c || valida_d){
 	
-	/*
-	//si hay alguna valida que nosea ni camino ni sendero (prioridad)
-	if(valida_i==true || valida_c==true || valida_d==true){
-		int visitadas_centro=10000, visitadas_izquierda=10000, visitadas_derecha=10000; //invalidas osea que no las va a cojer basicamente
-		//cout << "hay almenos una valida" << endl;
-		//ponemos los valores visitados de cada casilla
-		if (valida_c==true) visitadas_centro=visitadas[pos_c.first][pos_c.second];
-		if (valida_i==true) visitadas_izquierda=visitadas[pos_i.first][pos_i.second];
-		if (valida_d==true) visitadas_derecha=visitadas[pos_d.first][pos_d.second];
+		//prioridad a las zapatillas
+		if(!zap || visitadas_actual!=3){ 
+			if(c=='D') return 2;
+			else if(i=='D') return 1;
+			else if(d=='D') return 3;
+		}
 		
-		int menos_pasada = std::min(visitadas_centro, std::min(visitadas_izquierda, visitadas_derecha));
+		//si camino o sendero return
+		int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
 		
-		int coste_i=costeCasillaR1(i);
-		int coste_c=costeCasillaR1(c);
-		int coste_d=costeCasillaR1(d);
+		if(valida_i && (i=='C' || i=='S')){
+			opcion_i=visitadas[pos_i.first][pos_i.second];
+		}
+		if(valida_c && (c=='C' || c=='S')){
+			opcion_c=visitadas[pos_c.first][pos_c.second];
+		}
+		if(valida_d && (d=='C' || d=='S')){
+			opcion_d=visitadas[pos_d.first][pos_d.second];
+		}
 		
-		//cout << "por la que menos se ha transitado vale"<< menos_pasada << endl;
+		int menos_visitada_prioridad = std::min(opcion_c, std::min(opcion_d, opcion_i));
 		
-		int penalizacionVisitas = 5;
-		int prioridad_i = coste_i + visitadas_izquierda * penalizacionVisitas;
-        	int prioridad_c = coste_c + visitadas_centro * penalizacionVisitas;
-        	int prioridad_d = coste_d + visitadas_derecha * penalizacionVisitas;
-
-		 //cout << "Prioridades: I=" << prioridad_i << " C=" << prioridad_c << " D=" << prioridad_d << endl;
-
-        if (prioridad_c <= prioridad_i && prioridad_c <= prioridad_d) return 2;
-        else if (prioridad_i <= prioridad_d) return 1;
-        else return 3;
+		if(menos_visitada_prioridad!=10000){ // si hay algun sendero o camino
+			if(menos_visitada_prioridad==opcion_c) return 2;
+			if(menos_visitada_prioridad==opcion_i) return 1;
+			return 3;
+		}
+		
+		
+		if(visitadas_actual>=2){
+		
+			//si base return
+			int opcion_ib=10000, opcion_db=10000, opcion_cb=10000; //visitadas con prioridad
+			
+			if(valida_i && i=='X'){
+				opcion_ib=visitadas[pos_i.first][pos_i.second];
+			}
+			if(valida_c && c=='X'){
+				opcion_cb=visitadas[pos_c.first][pos_c.second];
+			}
+			if(valida_d && d=='X'){
+				opcion_db=visitadas[pos_d.first][pos_d.second];
+			}
+			
+			int menos_visitada_prioridadB = std::min(opcion_cb, std::min(opcion_db, opcion_ib));
+			
+			if(menos_visitada_prioridadB!=10000){ // si hay alguna base
+				if(menos_visitada_prioridadB==opcion_cb) return 2;
+				if(menos_visitada_prioridadB==opcion_ib) return 1;
+				return 3;
+			}
+			
+			
+			if(visitadas_actual>=2 || valida_i+valida_c+valida_d==1){
+				//si agua return
+				int opcion_ia=10000, opcion_da=10000, opcion_ca=10000; //visitadas con prioridad
+				
+				if(valida_i && i=='A'){
+					opcion_ia=visitadas[pos_i.first][pos_i.second];
+				}
+				if(valida_c && c=='A'){
+					opcion_ca=visitadas[pos_c.first][pos_c.second];
+				}
+				if(valida_d && d=='A'){
+					opcion_da=visitadas[pos_d.first][pos_d.second];
+				}
+				
+				int menos_visitada_prioridadA = std::min(opcion_ca, std::min(opcion_da, opcion_ia));
+				
+				if(menos_visitada_prioridadA!=10000){ // si hay alguna agua
+					if(menos_visitada_prioridadA==opcion_ca) return 2;
+					if(menos_visitada_prioridadA==opcion_ia) return 1;
+					return 3;
+				}
+			}
+			
+		}
+		
 	}
-	*/
+	
 	return 0; //se queda donde esta porque no puede avanzar
 }
 
@@ -691,21 +715,21 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 		char d= ViablePorAlturaR(sensores.superficie[3], sensores.cota[3]-sensores.cota[0], tiene_zapatillas);
 		
 		//elijo de entre las posibles casillas
-		int pos=VeoCasillaInteresanteR1(i, c, d, tiene_zapatillas, sensores.energia);
+		int pos=VeoCasillaInteresanteR1(i, c, d, tiene_zapatillas, sensores.energia, sensores.posF, sensores.posC);
 		switch(pos){
 			case 2:
-				cout << "hago un WALK" << endl;
+				//cout << "hago un WALK" << endl;
 				accion=WALK; //si la mejor es la que tengo en frente, avanzo
 				break;
 				
 			case 1:
-				cout << "hago un giro izq 45º" << endl;
+				//cout << "hago un giro izq 45º" << endl;
 				giro45Izq=1; //si la mejor es la que tengo a la izquierda, 45 grados, los giro
 				accion=TURN_L;
 				break;
 				
 			case 3:
-				cout << "hago un giro der 45º" << endl;
+				//cout << "hago un giro der 45º" << endl;
 				accion=TURN_SR; // si la mejor es la que tengo a la derecha 45 grados, los giro
 				break;
 				
