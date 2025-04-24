@@ -454,7 +454,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 				mejor=mejorOpcionA(tiene_zapatillas);	//veo donde es mejor ir, di izquierda o derecha
 				if(mejor==0){ //si no habia salida, se da media vuelta 180º
 					//cout << "no podia seguir ni a derecha ni a izquierda, me doy la vuelta" << endl;
-					giro45Izq=3; //CAMBIA ESTO ANTES ESTABA EN 2
+					giro45Izq=2; //CAMBIA ESTO ANTES ESTABA EN 2
 					accion=TURN_SR;
 					
 				} else { //si es el camino izquierdo o derecho
