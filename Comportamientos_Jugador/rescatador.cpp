@@ -1,6 +1,7 @@
 #include "../Comportamientos_Jugador/rescatador.hpp"
 #include <iostream>
 #include "motorlib/util.h"
+#include <cstdlib>
 
 
 Action ComportamientoRescatador::think(Sensores sensores)
@@ -535,6 +536,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	posAnteriorC=sensores.posC;
 	//cout << "he actualizado mi casilla de veces visitadas, ahora vale" << visitadas[sensores.posF][sensores.posC] << endl;
 	rumbo_anterior=sensores.rumbo;
+	
 	return accion;
 	
 }

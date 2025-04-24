@@ -677,10 +677,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 	}
 	
 	// Definicion del comportamiento
-	if(sensores.superficie[0]=='X'){ //Llegue al objetivo
-		accion=IDLE;
-	}
-	else if (giro45Izq!=0){ //Estoy girando TURN_SL
+	if (giro45Izq!=0){ //Estoy girando TURN_SL
 		accion=TURN_SR;
 		giro45Izq--;
 	}
