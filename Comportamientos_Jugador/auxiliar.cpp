@@ -695,7 +695,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 				accion=WALK;
 				break;
 			case 1:
-				giro45Izq=5; //PONER 5 A LA DERECHA OSEA TURN_SR
+				giro45Izq=6; //PONER 5 A LA DERECHA OSEA TURN_SR
 				accion=TURN_SR;
 				break;
 			case 3:
