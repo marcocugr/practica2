@@ -511,8 +511,8 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 							accion=TURN_SR;
 						}else{ //tiene que girar a la izquierda
 						//cout << "tengo que girar a la izquierda" << endl;
-							//giro45Izq=5;
-							accion=TURN_L; // antes era turn sr
+							giro45Izq=5;
+							accion=TURN_SR; // antes era turn sr
 						}
 					}
 				
@@ -781,8 +781,8 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 							accion=TURN_SR;
 						}else{ //tiene que girar a la izquierda
 						//cout << "tengo que girar a la izquierda" << endl;
-							//giro45Izq=5;
-							accion=TURN_L; //antes era turn_sr
+							giro45Izq=5;
+							accion=TURN_SR; //antes era turn_sr
 						}
 					}
 				
