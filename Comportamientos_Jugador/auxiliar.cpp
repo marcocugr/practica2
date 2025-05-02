@@ -18,8 +18,8 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 		accion = ComportamientoAuxiliarNivel_2 (sensores);
 		break;
 	case 3:
-		// accion = ComportamientoAuxiliarNivel_3 (sensores);
-		accion = ComportamientoAuxiliarNivel_E (sensores);
+		accion = ComportamientoAuxiliarNivel_3 (sensores);
+		// accion = ComportamientoAuxiliarNivel_E (sensores);
 		break;
 	case 4:
 		// accion = ComportamientoAuxiliarNivel_4 (sensores);
@@ -788,6 +788,7 @@ list<Action> ComportamientoAuxiliar::AvanzaASaltosDeCaballo(){
 	
 }
 
+//ve si es posible hacer un walk desde donde esta
 bool ComportamientoAuxiliar::CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura){
 	EstadoA next = NextCasillaAuxiliar(st);
@@ -798,6 +799,7 @@ bool ComportamientoAuxiliar::CasillaAccesibleAuxiliar(const EstadoA &st, const v
 	return check1 and check2 and check3;
 }
 
+//Devuelve el estado en el que quedaría el agente Auxiliar después de hacer una acción WALK.
 EstadoA ComportamientoAuxiliar::NextCasillaAuxiliar(const EstadoA &st){
 	EstadoA siguiente = st;
 	switch (st.brujula)
@@ -841,6 +843,7 @@ EstadoA ComportamientoAuxiliar::NextCasillaAuxiliar(const EstadoA &st){
 	return siguiente;
 }
 
+//devuelve un estado en el que se queda donde esta, avanza o gira
 EstadoA ComportamientoAuxiliar::applyA(Action accion, const EstadoA & st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura){
 	EstadoA next = st;
@@ -858,6 +861,7 @@ EstadoA ComportamientoAuxiliar::applyA(Action accion, const EstadoA & st, const 
 	return next;
 }
 
+//mira a ver si esta o no ese estado en esa lista
 bool ComportamientoAuxiliar::Find(const NodoA & st, const list<NodoA> &lista){
 	auto it = lista.begin();
 	while (it != lista.end() and !((*it) == st)){
@@ -866,6 +870,7 @@ bool ComportamientoAuxiliar::Find(const NodoA & st, const list<NodoA> &lista){
 	return (it != lista.end());
 }
 
+//algoritmo dle nivel e
 list <Action> ComportamientoAuxiliar::AnchuraAuxiliar(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
 
 	NodoA current_node;
@@ -926,6 +931,7 @@ list <Action> ComportamientoAuxiliar::AnchuraAuxiliar(const EstadoA &ini, const 
 
 }
 
+//algoritmo 2 del nivel 2
 list <Action> ComportamientoAuxiliar::AnchuraAuxiliar_V2(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
 
 	NodoA current_node;
@@ -1079,15 +1085,171 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores){
 	return accion;
 }
 
-Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_2(Sensores sensores)
-{
-	return WALK;
+double ComportamientoAuxiliar::calcularHeuristicaA(const EstadoA &actual, const EstadoA &destino){
 	
+	int dx=actual.f-destino.c;
+	int dy=actual.c-destino.c;	
+	return sqrt(dx*dx + dy*dy);
 	
 }
 
-Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores)
+bool ComportamientoAuxiliar::estaEnPriorityQueue(priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> pq, const NodoA& objetivo){
+
+	while (!pq.empty()) {
+        if (pq.top() == objetivo) {
+            return true;
+        }
+        pq.pop();
+    }
+    return false;
+
+}
+
+//reemplaza un nodo en la cola si encuentra uno con menor coste g (camino más barato)
+void ComportamientoAuxiliar::insertarElMejorNodo(priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> &pq, const NodoA& nodo){
+	
+	priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> copia;
+	
+	while (!pq.empty()) {
+	
+		NodoA actual = pq.top();
+		pq.pop();
+		
+		if (actual == nodo){ //si ya esta el nodo, meto el del g mas bajo
+			if(nodo.g<actual.g) copia.push(nodo);
+			else copia.push(actual);
+			
+		} else {
+		    copia.push(actual);
+		}
+		
+        }
+        pq=copia;
+}
+
+list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
+	
+	NodoA current_node; //nodo actual
+	priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> abiertos; //estos son los nodos pendientes de visitar/expandir con prioridad por f(n)
+	set<NodoA> cerrados; //estos son los nodos ya visitados/expandidos que no vuelve a procesarlos
+	list<Action> path;
+	
+	//inicializo el nodo actual
+	current_node.estado=ini;
+	current_node.g=0;
+	current_node.h=calcularHeuristicaA(ini, fin);
+	current_node.fn=current_node.g+current_node.h;
+	
+	//le metemos en abiertos porque no le hemos explorado todavia
+	abiertos.push(current_node);
+	
+	//hasta aqui abiertos tiene el nodo inicial y cerrados esta vacio
+	
+	bool SolutionFound=(current_node.estado.f==fin.f and current_node.estado.c==fin.c);	
+	
+	//implementacion del algoritmo
+	//comienza un ciclo hasta que haya solucion o abiertos este vacio
+	while(!SolutionFound and !abiertos.empty()){ 
+	
+		//selecciono el mejor nodo de los abiertos
+		NodoA actual = abiertos.top();
+	    	abiertos.pop();
+	    	
+	    	//mira a ver si tiene zapatillas
+			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
+				current_node.estado.zapatillas=true;
+			}
+	    	
+	    	//si es un nodo objetivo, terminar
+	    	if(current_node.estado.f==fin.f and current_node.estado.c==fin.c){
+	    		SolutionFound=true;
+	    		while(!abiertos.empty()){
+	    			abiertos.pop();
+	    		}
+	    	}	
+		
+		//si no hay solucion, se expande
+		if(!SolutionFound){
+		
+			//generamos el sucesor WALK con su heurística
+			NodoA sucesor_WALK=current_node;
+			sucesor_WALK.estado= applyA(TURN_SR, current_node.estado, terreno, altura);
+			sucesor_WALK.g+=terreno[sucesor_WALK.estado.f][sucesor_WALK.estado.c];
+			sucesor_WALK.h=calcularHeuristicaA(sucesor_WALK.estado, fin);
+			sucesor_WALK.fn=sucesor_WALK.g+sucesor_WALK.h;
+			sucesor_WALK.secuencia.push_back(WALK);
+			
+			//generamos el sucesor TURN_SR con su heurística
+			NodoA sucesor_TURN_SR=current_node;
+			sucesor_TURN_SR.estado= applyA(TURN_SR, current_node.estado, terreno, altura);
+			sucesor_TURN_SR.g+=terreno[sucesor_TURN_SR.estado.f][sucesor_TURN_SR.estado.c];
+			sucesor_TURN_SR.h=calcularHeuristicaA(sucesor_TURN_SR.estado, fin);
+			sucesor_TURN_SR.fn=sucesor_TURN_SR.g+sucesor_TURN_SR.h;
+			sucesor_TURN_SR.secuencia.push_back(TURN_SR);
+			
+			//si esta en abiertos el sucesor WALK le inserto manteniendo la informacion del mejor padre
+			if(estaEnPriorityQueue(abiertos, sucesor_WALK)){
+				insertarElMejorNodo(abiertos, sucesor_WALK);
+			
+			//si esta en cerrados el sucesor WALK se inserta manteniendo la informacion del mejor padre y se actualiza la de los descendientes
+			} else if (cerrados.find(sucesor_WALK) != cerrados.end()){
+			
+			
+			//sino, le insertamos como un nodo nuevo en abiertos
+			} else {
+				abiertos.push(sucesor_WALK);
+			}
+			
+			//si esta en abiertos el sucesor TURN_SR le inserto manteniendo la informacion del mejor padre
+			if(estaEnPriorityQueue(abiertos, sucesor_TURN_SR)){
+				insertarElMejorNodo(abiertos, sucesor_TURN_SR);
+			
+			//si esta en cerrados el sucesor TURN_SR se inserta manteniendo la informacion del mejor padre y se actualiza la de los descendientes
+			} else if (cerrados.find(sucesor_WALK) != cerrados.end()){
+				
+			
+			//sino, le insertamos como un nodo nuevo en abiertos
+			} else {
+				abiertos.push(sucesor_TURN_SR);
+			}
+			
+		}
+	}
+	//devuelvo el camino si encuentra solucion
+	if(SolutionFound) path=current_node.secuencia;
+	
+	return path;
+}
+
+Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_2(Sensores sensores)
 {
+}
+
+Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores){
+
+	Action accion = IDLE;
+	if (!hayPlan){
+		// Invocar al método de búsqueda
+		EstadoA inicio, fin;
+		inicio.f = sensores.posF;
+		inicio.c = sensores.posC;
+		inicio.brujula = sensores.rumbo;
+		inicio.zapatillas = tiene_zapatillas;
+		fin.f = sensores.destinoF;
+		fin.c = sensores.destinoC;
+		plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
+		VisualizaPlan(inicio,plan);
+		hayPlan = plan.size() != 0 ;
+	}
+	if (hayPlan and plan.size()>0){
+		accion = plan.front();
+		plan.pop_front();
+	}
+	if (plan.size()== 0){
+		hayPlan = false;
+	}
+	return accion;
+
 }
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores)
