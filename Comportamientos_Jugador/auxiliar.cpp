@@ -15,7 +15,7 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 		accion = ComportamientoAuxiliarNivel_1 (sensores);
 		break;
 	case 2:
-		accion = ComportamientoAuxiliarNivel_2 (sensores);
+		//accion = ComportamientoAuxiliarNivel_2 (sensores);
 		break;
 	case 3:
 		accion = ComportamientoAuxiliarNivel_3 (sensores);
@@ -931,7 +931,7 @@ list <Action> ComportamientoAuxiliar::AnchuraAuxiliar(const EstadoA &ini, const 
 
 }
 
-//algoritmo 2 del nivel 2
+//algoritmo 2 del nivel e
 list <Action> ComportamientoAuxiliar::AnchuraAuxiliar_V2(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
 
 	NodoA current_node;
@@ -1146,14 +1146,14 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	//hasta aqui abiertos tiene el nodo inicial y cerrados esta vacio
 	
 	bool SolutionFound=(current_node.estado.f==fin.f and current_node.estado.c==fin.c);	
-	
 	//implementacion del algoritmo
 	//comienza un ciclo hasta que haya solucion o abiertos este vacio
 	while(!SolutionFound and !abiertos.empty()){ 
 	
 		//selecciono el mejor nodo de los abiertos
-		NodoA actual = abiertos.top();
+		current_node = abiertos.top();
 	    	abiertos.pop();
+	    	cerrados.insert(current_node);
 	    	
 	    	//mira a ver si tiene zapatillas
 			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
@@ -1173,7 +1173,7 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 		
 			//generamos el sucesor WALK con su heurística
 			NodoA sucesor_WALK=current_node;
-			sucesor_WALK.estado= applyA(TURN_SR, current_node.estado, terreno, altura);
+			sucesor_WALK.estado= applyA(WALK, current_node.estado, terreno, altura);
 			sucesor_WALK.g+=terreno[sucesor_WALK.estado.f][sucesor_WALK.estado.c];
 			sucesor_WALK.h=calcularHeuristicaA(sucesor_WALK.estado, fin);
 			sucesor_WALK.fn=sucesor_WALK.g+sucesor_WALK.h;
@@ -1193,7 +1193,11 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 			
 			//si esta en cerrados el sucesor WALK se inserta manteniendo la informacion del mejor padre y se actualiza la de los descendientes
 			} else if (cerrados.find(sucesor_WALK) != cerrados.end()){
-			
+				auto it = cerrados.find(sucesor_WALK);
+				if (sucesor_WALK.g < it->g) {
+					cerrados.erase(it);
+					insertarElMejorNodo(abiertos, sucesor_WALK);
+				 }
 			
 			//sino, le insertamos como un nodo nuevo en abiertos
 			} else {
@@ -1205,8 +1209,13 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 				insertarElMejorNodo(abiertos, sucesor_TURN_SR);
 			
 			//si esta en cerrados el sucesor TURN_SR se inserta manteniendo la informacion del mejor padre y se actualiza la de los descendientes
-			} else if (cerrados.find(sucesor_WALK) != cerrados.end()){
-				
+			} else if (cerrados.find(sucesor_TURN_SR) != cerrados.end()){
+			
+				auto it = cerrados.find(sucesor_TURN_SR);
+				if (sucesor_TURN_SR.g < it->g) {
+					cerrados.erase(it);
+					insertarElMejorNodo(abiertos, sucesor_TURN_SR);
+				 }
 			
 			//sino, le insertamos como un nodo nuevo en abiertos
 			} else {
