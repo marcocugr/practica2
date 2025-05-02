@@ -1136,7 +1136,7 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	
 	//inicializo el nodo actual
 	current_node.estado=ini;
-	current_node.g=0;
+	current_node.g=0.0;
 	current_node.h=calcularHeuristicaA(ini, fin);
 	current_node.fn=current_node.g+current_node.h;
 	
@@ -1174,7 +1174,7 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 			//generamos el sucesor WALK con su heurística
 			NodoA sucesor_WALK=current_node;
 			sucesor_WALK.estado= applyA(WALK, current_node.estado, terreno, altura);
-			sucesor_WALK.g+=terreno[sucesor_WALK.estado.f][sucesor_WALK.estado.c];
+			sucesor_WALK.g+=costeCasillaA1(terreno[sucesor_WALK.estado.f][sucesor_WALK.estado.c], sucesor_WALK.estado.zapatillas);
 			sucesor_WALK.h=calcularHeuristicaA(sucesor_WALK.estado, fin);
 			sucesor_WALK.fn=sucesor_WALK.g+sucesor_WALK.h;
 			sucesor_WALK.secuencia.push_back(WALK);
@@ -1182,7 +1182,7 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 			//generamos el sucesor TURN_SR con su heurística
 			NodoA sucesor_TURN_SR=current_node;
 			sucesor_TURN_SR.estado= applyA(TURN_SR, current_node.estado, terreno, altura);
-			sucesor_TURN_SR.g+=terreno[sucesor_TURN_SR.estado.f][sucesor_TURN_SR.estado.c];
+			sucesor_TURN_SR.g+=costeCasillaA1(terreno[sucesor_TURN_SR.estado.f][sucesor_TURN_SR.estado.c], sucesor_TURN_SR.estado.zapatillas);
 			sucesor_TURN_SR.h=calcularHeuristicaA(sucesor_TURN_SR.estado, fin);
 			sucesor_TURN_SR.fn=sucesor_TURN_SR.g+sucesor_TURN_SR.h;
 			sucesor_TURN_SR.secuencia.push_back(TURN_SR);
