@@ -4,8 +4,39 @@
 #include <chrono>
 #include <time.h>
 #include <thread>
+#include<list>
+#include <set>
 
 #include "comportamientos/comportamiento.hpp"
+
+	struct EstadoA {
+	 int f;
+	 int c;
+	 int brujula;
+	 bool zapatillas;
+	 bool operator==(const EstadoA &st) const{
+	 return f == st.f && c == st.c && brujula == st.brujula and zapatillas ==
+	st.zapatillas;
+	 }
+	};
+	
+	struct NodoA{
+	 EstadoA estado;
+	 list<Action> secuencia;
+	 bool operator==(const NodoA &node) const{
+	 return estado == node.estado;
+	 }
+	 bool operator<(const NodoA &node) const{
+	 if (estado.f < node.estado.f) return true;
+	 else if (estado.f == node.estado.f and estado.c < node.estado.c) return true;
+	 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula <
+	node.estado.brujula) return true;
+	 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula ==
+	node.estado.brujula and estado.zapatillas < node.estado.zapatillas) return true;
+	 else return false;
+	 }
+	};
+
 
 class ComportamientoAuxiliar : public Comportamiento
 {
@@ -26,6 +57,7 @@ public:
   ComportamientoAuxiliar(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
     // Inicializar Variables de Estado Niveles 2,3
+    hayPlan=false;
   }
   ComportamientoAuxiliar(const ComportamientoAuxiliar &comport) : Comportamiento(comport) {}
   
@@ -45,12 +77,27 @@ public:
   int costeCasillaA1(char casilla, bool zap);
 
   int interact(Action accion, int valor);
+  
+  //funciones de los niveles 2 y 3
+  list<Action> AvanzaASaltosDeCaballo();
+  bool CasillaAccesibleAuxiliar(const EstadoA &st, const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
+  EstadoA NextCasillaAuxiliar(const EstadoA &st);
+  EstadoA applyA(Action accion, const EstadoA & st, const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
+  bool Find (const NodoA & st, const list<NodoA> &lista);
+  void AnularMatrizA(vector<vector<unsigned char>> &m);
+  void VisualizaPlan(const EstadoA &st, const list<Action> &plan);
+  list <Action> AnchuraAuxiliar(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+  list <Action> AnchuraAuxiliar_V2(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
 
   Action ComportamientoAuxiliarNivel_0(Sensores sensores);
   Action ComportamientoAuxiliarNivel_1(Sensores sensores);
   Action ComportamientoAuxiliarNivel_2(Sensores sensores);
   Action ComportamientoAuxiliarNivel_3(Sensores sensores);
   Action ComportamientoAuxiliarNivel_4(Sensores sensores);
+  
+  Action ComportamientoAuxiliarNivel_E(Sensores sensores);
 
 private:
   // Definir Variables de Estado
@@ -62,6 +109,11 @@ private:
 	vector<vector<int>> visitadas;
 	pair<int, int> pos_c, pos_i, pos_d;
 	int posAnteriorF, posAnteriorC;
+	
+	//niveles 2 y 3
+	list<Action> plan;
+	bool hayPlan;
+	
 };
 
 #endif
