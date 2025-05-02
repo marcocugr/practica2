@@ -119,6 +119,13 @@ public:
   bool estaEnPriorityQueue(priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> pq, const NodoA& objetivo);
   void insertarElMejorNodo(priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> &pq, const NodoA& nodo);
   list <Action> AlgoritmoAEstrella(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+void procesarSucesor(Action act, const NodoA& current_node, const EstadoA& fin,
+                     const vector<vector<unsigned char>>& terreno,
+                     const vector<vector<unsigned char>>& altura,
+                     set<NodoA>& cerrados,
+                     map<EstadoA, NodoA>& abiertos_map,
+                     priority_queue<NodoA, vector<NodoA>, ComparadorNodoA>& abiertos);
+
 
   Action ComportamientoAuxiliarNivel_0(Sensores sensores);
   Action ComportamientoAuxiliarNivel_1(Sensores sensores);

@@ -1127,12 +1127,36 @@ void ComportamientoAuxiliar::insertarElMejorNodo(priority_queue<NodoA, vector<No
         pq=copia;
 }
 
+void ComportamientoAuxiliar::procesarSucesor(Action act, const NodoA& current_node, const EstadoA& fin,
+                     const vector<vector<unsigned char>>& terreno,
+                     const vector<vector<unsigned char>>& altura,
+                     set<NodoA>& cerrados,
+                     map<EstadoA, NodoA>& abiertos_map,
+                     priority_queue<NodoA, vector<NodoA>, ComparadorNodoA>& abiertos) {
+
+    NodoA sucesor = current_node;
+    sucesor.estado = applyA(act, current_node.estado, terreno, altura);
+    sucesor.g += costeCasillaA1(terreno[sucesor.estado.f][sucesor.estado.c], sucesor.estado.zapatillas);
+    sucesor.h = calcularHeuristicaA(sucesor.estado, fin);
+    sucesor.fn = sucesor.g + sucesor.h;
+    sucesor.secuencia.push_back(act);
+
+    if (cerrados.find(sucesor) != cerrados.end()) return;
+
+    auto it = abiertos_map.find(sucesor.estado);
+    if (it == abiertos_map.end() || sucesor.g < it->second.g) {
+        abiertos_map[sucesor.estado] = sucesor;
+        abiertos.push(sucesor);
+    }
+}
+
 list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
 	
 	NodoA current_node; //nodo actual
 	priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> abiertos; //estos son los nodos pendientes de visitar/expandir con prioridad por f(n)
 	set<NodoA> cerrados; //estos son los nodos ya visitados/expandidos que no vuelve a procesarlos
 	list<Action> path;
+	map<EstadoA, NodoA> abiertos_map;
 	
 	//inicializo el nodo actual
 	current_node.estado=ini;
@@ -1142,6 +1166,7 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	
 	//le metemos en abiertos porque no le hemos explorado todavia
 	abiertos.push(current_node);
+	abiertos_map[ini] = current_node;
 	
 	//hasta aqui abiertos tiene el nodo inicial y cerrados esta vacio
 	
@@ -1150,10 +1175,14 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	//comienza un ciclo hasta que haya solucion o abiertos este vacio
 	while(!SolutionFound and !abiertos.empty()){ 
 	
-		//selecciono el mejor nodo de los abiertos
-		current_node = abiertos.top();
-	    	abiertos.pop();
+		//selecciono el mejor nodo de los abiertos (sacando los obsoletos si tiene)
+		do {
+		    current_node = abiertos.top();
+		    abiertos.pop();
+		} while (abiertos_map.find(current_node.estado) != abiertos_map.end() && current_node.g > abiertos_map[current_node.estado].g);
+
 	    	cerrados.insert(current_node);
+	    	abiertos_map.erase(current_node.estado);
 	    	
 	    	//mira a ver si tiene zapatillas
 			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
@@ -1163,64 +1192,15 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	    	//si es un nodo objetivo, terminar
 	    	if(current_node.estado.f==fin.f and current_node.estado.c==fin.c){
 	    		SolutionFound=true;
-	    		while(!abiertos.empty()){
-	    			abiertos.pop();
-	    		}
+	    		break;
 	    	}	
 		
 		//si no hay solucion, se expande
 		if(!SolutionFound){
 		
 			//generamos el sucesor WALK con su heurística
-			NodoA sucesor_WALK=current_node;
-			sucesor_WALK.estado= applyA(WALK, current_node.estado, terreno, altura);
-			sucesor_WALK.g+=costeCasillaA1(terreno[sucesor_WALK.estado.f][sucesor_WALK.estado.c], sucesor_WALK.estado.zapatillas);
-			sucesor_WALK.h=calcularHeuristicaA(sucesor_WALK.estado, fin);
-			sucesor_WALK.fn=sucesor_WALK.g+sucesor_WALK.h;
-			sucesor_WALK.secuencia.push_back(WALK);
-			
-			//generamos el sucesor TURN_SR con su heurística
-			NodoA sucesor_TURN_SR=current_node;
-			sucesor_TURN_SR.estado= applyA(TURN_SR, current_node.estado, terreno, altura);
-			sucesor_TURN_SR.g+=costeCasillaA1(terreno[sucesor_TURN_SR.estado.f][sucesor_TURN_SR.estado.c], sucesor_TURN_SR.estado.zapatillas);
-			sucesor_TURN_SR.h=calcularHeuristicaA(sucesor_TURN_SR.estado, fin);
-			sucesor_TURN_SR.fn=sucesor_TURN_SR.g+sucesor_TURN_SR.h;
-			sucesor_TURN_SR.secuencia.push_back(TURN_SR);
-			
-			//si esta en abiertos el sucesor WALK le inserto manteniendo la informacion del mejor padre
-			if(estaEnPriorityQueue(abiertos, sucesor_WALK)){
-				insertarElMejorNodo(abiertos, sucesor_WALK);
-			
-			//si esta en cerrados el sucesor WALK se inserta manteniendo la informacion del mejor padre y se actualiza la de los descendientes
-			} else if (cerrados.find(sucesor_WALK) != cerrados.end()){
-				auto it = cerrados.find(sucesor_WALK);
-				if (sucesor_WALK.g < it->g) {
-					cerrados.erase(it);
-					insertarElMejorNodo(abiertos, sucesor_WALK);
-				 }
-			
-			//sino, le insertamos como un nodo nuevo en abiertos
-			} else {
-				abiertos.push(sucesor_WALK);
-			}
-			
-			//si esta en abiertos el sucesor TURN_SR le inserto manteniendo la informacion del mejor padre
-			if(estaEnPriorityQueue(abiertos, sucesor_TURN_SR)){
-				insertarElMejorNodo(abiertos, sucesor_TURN_SR);
-			
-			//si esta en cerrados el sucesor TURN_SR se inserta manteniendo la informacion del mejor padre y se actualiza la de los descendientes
-			} else if (cerrados.find(sucesor_TURN_SR) != cerrados.end()){
-			
-				auto it = cerrados.find(sucesor_TURN_SR);
-				if (sucesor_TURN_SR.g < it->g) {
-					cerrados.erase(it);
-					insertarElMejorNodo(abiertos, sucesor_TURN_SR);
-				 }
-			
-			//sino, le insertamos como un nodo nuevo en abiertos
-			} else {
-				abiertos.push(sucesor_TURN_SR);
-			}
+			procesarSucesor(WALK, current_node, fin, terreno, altura, cerrados, abiertos_map, abiertos);
+			procesarSucesor(TURN_SR, current_node, fin, terreno, altura, cerrados, abiertos_map, abiertos);
 			
 		}
 	}
