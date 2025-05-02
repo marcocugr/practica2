@@ -1140,9 +1140,11 @@ void ComportamientoAuxiliar::procesarSucesor(Action act, const NodoA& current_no
     sucesor.h = calcularHeuristicaA(sucesor.estado, fin);
     sucesor.fn = sucesor.g + sucesor.h;
     sucesor.secuencia.push_back(act);
-
+	
+    //si esta en cerrados ni lo toca
     if (cerrados.find(sucesor) != cerrados.end()) return;
-
+    
+    //sino esta en abiertos o esta repey es el mejor le mete
     auto it = abiertos_map.find(sucesor.estado);
     if (it == abiertos_map.end() || sucesor.g < it->second.g) {
         abiertos_map[sucesor.estado] = sucesor;
@@ -1175,7 +1177,7 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	//comienza un ciclo hasta que haya solucion o abiertos este vacio
 	while(!SolutionFound and !abiertos.empty()){ 
 	
-		//selecciono el mejor nodo de los abiertos (sacando los obsoletos si tiene)
+		//selecciono el mejor nodo de los abiertos (sacando los repetidos obsoletos si tiene)
 		do {
 		    current_node = abiertos.top();
 		    abiertos.pop();
