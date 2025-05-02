@@ -8,6 +8,8 @@
 #include <set>
 #include <cmath>
 #include <queue>
+#include <map>
+#include <unordered_set>
 
 #include "comportamientos/comportamiento.hpp"
 
@@ -20,6 +22,14 @@
 	 return f == st.f && c == st.c && brujula == st.brujula and zapatillas ==
 	st.zapatillas;
 	 }
+	 bool operator<(const EstadoA& b) const {
+    if (f != b.f) return f < b.f;
+    if (c != b.c) return c < b.c;
+    if (brujula != b.brujula) return brujula < b.brujula;
+    return zapatillas < b.zapatillas;
+}
+
+
 	};
 	
 	struct NodoA{

@@ -1087,7 +1087,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores){
 
 double ComportamientoAuxiliar::calcularHeuristicaA(const EstadoA &actual, const EstadoA &destino){
 	
-	int dx=actual.f-destino.c;
+	int dx=actual.f-destino.f;
 	int dy=actual.c-destino.c;	
 	return sqrt(dx*dx + dy*dy);
 	
@@ -1229,6 +1229,7 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	
 	return path;
 }
+
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_2(Sensores sensores)
 {
