@@ -888,7 +888,7 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 	case RUN:
 		if (CasillaAccesibleRescatador(st,terreno,altura)){
 			EstadoR posible = NextCasillaRescatador(st);
-			if (CasillaAccesibleRescatador(st,terreno,altura)){
+			if (CasillaAccesibleRescatador(posible,terreno,altura)){
 				next = NextCasillaRescatador(posible);
 			}
 		}
@@ -998,9 +998,10 @@ void ComportamientoRescatador::procesarSucesorR(Action act, const NodoR& current
                      set<NodoR>& cerrados,
                      map<EstadoR, NodoR>& abiertos_map,
                      priority_queue<NodoR, vector<NodoR>, ComparadorNodoR>& abiertos) {
-
+    
     NodoR sucesor = current_node;
     sucesor.estado = applyR(act, current_node.estado, terreno, altura);
+    if (sucesor.estado == current_node.estado) return; // si no va
     sucesor.g += costeCasillaR1(terreno[sucesor.estado.f][sucesor.estado.c]);
     sucesor.secuencia.push_back(act);
 	
