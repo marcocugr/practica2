@@ -816,7 +816,7 @@ bool ComportamientoRescatador::CasillaAccesibleRescatador(const EstadoR &st, con
 	EstadoR next = NextCasillaRescatador(st);
 	bool check1 = false, check2 = false;
 	check1 = terreno[next.f][next.c] != 'P' and terreno[next.f][next.c] != 'M' and terreno[next.f][next.c] != 'B';
-	check2 = abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1 or (abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 2 and st.zapatillas);
+	check2 = (abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1) or ((abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 2) and st.zapatillas);
 	return check1 and check2;
 
 }
@@ -909,14 +909,14 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 			next = NextCasillaRescatador(st);
 		}
 		break;
-	RUN:{
-		intermedio = NextCasillaRescatador(st); //seria como la siguiente a la actual
-		EstadoR final = NextCasillaRescatador(intermedio); // es la objetivo
-		//si la intermedia es transitable y no es la actual y 
-		if (esValidaR2(intermedio,terreno) && CasillaAccesibleRescatador(intermedio,terreno,altura) && diferenciaAlturasCorrecta(st, final, altura)) {
-			next = final;
+	case RUN:
+		if (CasillaAccesibleRescatador(st,terreno,altura)){
+			EstadoR posible = NextCasillaRescatador(st);
+			if (CasillaAccesibleRescatador(posible,terreno,altura)){
+				next = NextCasillaRescatador(posible);
+			}
 		}
-	}
+		break;
 	case TURN_L:
 		next.brujula = (next.brujula+6)%8;
 		break;
@@ -1129,6 +1129,7 @@ void ComportamientoRescatador::procesarSucesorR(Action act, const NodoR& current
     
     NodoR sucesor = current_node;
     sucesor.estado = applyR(act, current_node.estado, terreno, altura);
+    //sucesor.g += costeCasillaR1(terreno[sucesor.estado.f][sucesor.estado.c]);
     sucesor.g += costeMejoradoR2(current_node.estado, sucesor.estado, act, terreno, altura);
     sucesor.secuencia.push_back(act);
 	
@@ -1172,11 +1173,6 @@ list <Action> ComportamientoRescatador::AlgoritmoDjkstra(const EstadoR &ini, con
 		    abiertos.pop();
 		} while (abiertos_map.find(current_node.estado) != abiertos_map.end() && current_node.g > abiertos_map[current_node.estado].g);
 		
-		//mira a ver si tiene zapatillas
-			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
-				current_node.estado.zapatillas=true;
-			}
-		
 	    	cerrados.insert(current_node);
 	    	abiertos_map.erase(current_node.estado);
 	    	
@@ -1185,6 +1181,11 @@ list <Action> ComportamientoRescatador::AlgoritmoDjkstra(const EstadoR &ini, con
 	    		SolutionFound=true;
 	    		break;
 	    	}	
+	    	
+	    	//mira a ver si tiene zapatillas
+			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
+				current_node.estado.zapatillas=true;
+			}
 		
 		//si no hay solucion, se expande
 		if(!SolutionFound){
