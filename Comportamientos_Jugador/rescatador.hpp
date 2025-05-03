@@ -4,8 +4,59 @@
 #include <chrono>
 #include <time.h>
 #include <thread>
+#include<list>
+#include <set>
+#include <cmath>
+#include <queue>
+#include <map>
+#include <unordered_set>
 
 #include "comportamientos/comportamiento.hpp"
+
+	struct EstadoR {
+		 int f;
+		 int c;
+		 int brujula;
+		 bool zapatillas;
+		 bool operator==(const EstadoR &st) const{
+		 return f == st.f && c == st.c && brujula == st.brujula and zapatillas ==
+		st.zapatillas;
+		 }
+		 bool operator<(const EstadoR& b) const {
+	    if (f != b.f) return f < b.f;
+	    if (c != b.c) return c < b.c;
+	    if (brujula != b.brujula) return brujula < b.brujula;
+	    return zapatillas < b.zapatillas;
+	}
+
+
+	};
+	
+	struct NodoR{
+	 EstadoR estado;
+	 int g; //coste
+	 list<Action> secuencia;
+	 bool operator==(const NodoR &node) const{
+	 return estado == node.estado;
+	 }
+	 bool operator<(const NodoR &node) const{
+	 if (estado.f < node.estado.f) return true;
+	 else if (estado.f == node.estado.f and estado.c < node.estado.c) return true;
+	 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula <
+	node.estado.brujula) return true;
+	 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula ==
+	node.estado.brujula and estado.zapatillas < node.estado.zapatillas) return true;
+	 else return false;
+	 }
+	};
+	
+	//para el Djkstra
+	struct ComparadorNodoR {
+	 bool operator()(const NodoR &a, const NodoR &b) const {
+		return a.g > b.g; // menor g(n) tiene mayor prioridad (porque priority_queue ordena de mayor a menor)
+	 }
+	};
+
 
 class ComportamientoRescatador : public Comportamiento
 {
@@ -30,6 +81,7 @@ public:
   ComportamientoRescatador(std::vector<std::vector<unsigned char>> mapaR, std::vector<std::vector<unsigned char>> mapaC) : Comportamiento(mapaR,mapaC)
   {
     // Inicializar Variables de Estado Niveles 2,3
+     hayPlan=false;
   }
   ComportamientoRescatador(const ComportamientoRescatador &comport) : Comportamiento(comport) {}
   ~ComportamientoRescatador() {}
@@ -47,6 +99,25 @@ public:
   int VeoCasillaInteresanteR1(char i, char c, char d, bool zap, int energia, int fila, int col);
   int mejorOpcionR1(bool zap, int energia);
   int costeCasillaR1(char casilla);
+  
+  //funciones de los nivel e
+  bool CasillaAccesibleRescatador(const EstadoR &st, const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
+  EstadoR NextCasillaRescatador(const EstadoR &st);
+  EstadoR applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
+  const vector<vector<unsigned char>> &altura);
+  void AnularMatrizR(vector<vector<unsigned char>> &m);
+  void VisualizaPlanR(const EstadoR &st, const list<Action> &plan);
+  void PintaPlanR(const list<Action> &plan, bool zap);
+  
+    //funciones niveles 2 y 3
+  list <Action> AlgoritmoDjkstra(const EstadoR &ini, const EstadoR &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
+void procesarSucesorR(Action act, const NodoR& current_node, const EstadoR& fin,
+                     const vector<vector<unsigned char>>& terreno,
+                     const vector<vector<unsigned char>>& altura,
+                     set<NodoR>& cerrados,
+                     map<EstadoR, NodoR>& abiertos_map,
+                     priority_queue<NodoR, vector<NodoR>, ComparadorNodoR>& abiertos);
 
   Action ComportamientoRescatadorNivel_0(Sensores sensores);
   Action ComportamientoRescatadorNivel_1(Sensores sensores);
@@ -64,6 +135,11 @@ private:
 	pair<int, int> pos_c, pos_i, pos_d;
 	int posAnteriorF, posAnteriorC;
 	bool doble_giroIzq;
+	
+	//niveles 2 y 3
+	list<Action> plan;
+	bool hayPlan;
+	
 };
 
 #endif

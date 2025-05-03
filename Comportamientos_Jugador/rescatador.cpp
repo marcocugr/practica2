@@ -17,7 +17,7 @@ Action ComportamientoRescatador::think(Sensores sensores)
 		accion = ComportamientoRescatadorNivel_1 (sensores);
 		break;
 	case 2:
-		// accion = ComportamientoRescatadorNivel_2 (sensores);
+		accion = ComportamientoRescatadorNivel_2 (sensores);
 		break;
 	case 3:
 		// accion = ComportamientoRescatadorNivel_3 (sensores);
@@ -810,8 +810,296 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_1(Sensores sensor
 
 }
 
-Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensores)
+//ve si es posible hacer un walk desde donde esta
+bool ComportamientoRescatador::CasillaAccesibleRescatador(const EstadoR &st, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
+
+	EstadoR next = NextCasillaRescatador(st);
+	bool check1 = false, check2 = false;
+	check1 = terreno[next.f][next.c] != 'P' and terreno[next.f][next.c] != 'M' and terreno[next.f][next.c] != 'B';
+	check2 = abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 1 or (abs(altura[next.f][next.c] - altura[st.f][st.c]) <= 2 and st.zapatillas);
+	return check1 and check2;
+
+}
+
+void ComportamientoRescatador::AnularMatrizR(vector<vector<unsigned char>> &m){
+
+	for (int i = 0; i < m[0].size(); i++){
+		for (int j = 0; j < m.size(); j++){
+			m[i][j] = 0;
+		}
+	}
+}
+
+EstadoR ComportamientoRescatador::NextCasillaRescatador(const EstadoR &st){
+
+	EstadoR siguiente = st;
+	switch (st.brujula)
+	{
+	case norte:
+		siguiente.f = st.f - 1;
+		break;
+		
+	case noreste:
+		siguiente.f = st.f - 1;
+		siguiente.c = st.c + 1;
+		break;
+		
+	case este:
+		siguiente.c = st.c + 1;
+		break;
+		
+	case sureste:
+		siguiente.f = st.f + 1;
+		siguiente.c = st.c + 1;
+		break;
+		
+	case sur:
+		siguiente.f = st.f + 1;
+		break;
+		
+	case suroeste:
+		siguiente.f = st.f + 1;
+		siguiente.c = st.c - 1;
+		break;
+		
+	case oeste:
+		siguiente.c = st.c - 1;
+		break;
+		
+	case noroeste:
+		siguiente.f = st.f - 1;
+		siguiente.c = st.c - 1;
+	}
+	
+	return siguiente;
+
+}
+
+//devuelve un estado en el que se queda donde esta, avanza, gira o corre
+EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
+	const vector<vector<unsigned char>> &altura){
+	EstadoR next = st;
+	switch(accion){
+	case WALK:
+		if (CasillaAccesibleRescatador(st,terreno,altura)){
+			next = NextCasillaRescatador(st);
+		}
+		break;
+	case RUN:
+		if (CasillaAccesibleRescatador(st,terreno,altura)){
+			EstadoR posible = NextCasillaRescatador(st);
+			if (CasillaAccesibleRescatador(st,terreno,altura)){
+				next = NextCasillaRescatador(posible);
+			}
+		}
+		break;	
+	case TURN_L:
+		next.brujula = (next.brujula+6)%8;
+		break;
+	case TURN_SR:
+		next.brujula = (next.brujula+1)%8;
+		break;
+	}
+	return next;
+}
+
+void ComportamientoRescatador::VisualizaPlanR(const EstadoR &st, const list<Action> &plan)
 {
+	AnularMatrizR(mapaConPlan);
+	EstadoR cst = st;
+	
+	auto it = plan.begin();
+	while (it != plan.end())
+	{
+		switch (*it)
+		{
+			case RUN:
+			switch (cst.brujula)
+			{
+				case 0:
+					cst.f--;
+					break;
+				case 1:
+					cst.f--;
+					cst.c++;
+					break;
+				case 2:
+					cst.c++;
+					break;
+				case 3:
+					cst.f++;
+					cst.c++;
+					break;
+				case 4:
+					cst.f++;
+					break;
+				case 5:
+					cst.f++;
+					cst.c--;
+					break;
+				case 6:
+					cst.c--;
+					break;
+				case 7:
+					cst.f--;
+					cst.c--;
+					break;
+			}
+			mapaConPlan[cst.f][cst.c] = 3;
+			
+			case WALK:
+			switch (cst.brujula)
+			{
+				case 0:
+					cst.f--;
+					break;
+				case 1:
+					cst.f--;
+					cst.c++;
+					break;
+				case 2:
+					cst.c++;
+					break;
+				case 3:
+					cst.f++;
+					cst.c++;
+					break;
+				case 4:
+					cst.f++;
+					break;
+				case 5:
+					cst.f++;
+					cst.c--;
+					break;
+				case 6:
+					cst.c--;
+					break;
+				case 7:
+					cst.f--;
+					cst.c--;
+					break;
+			}
+			mapaConPlan[cst.f][cst.c] = 1;
+			break;
+			case TURN_SR:
+				cst.brujula = (cst.brujula + 1) % 8;
+				break;
+			case TURN_L:
+				cst.brujula = (cst.brujula + 6) % 8;
+				break;
+		}
+		it++;
+	}
+}
+
+void ComportamientoRescatador::procesarSucesorR(Action act, const NodoR& current_node, const EstadoR& fin,
+                     const vector<vector<unsigned char>>& terreno,
+                     const vector<vector<unsigned char>>& altura,
+                     set<NodoR>& cerrados,
+                     map<EstadoR, NodoR>& abiertos_map,
+                     priority_queue<NodoR, vector<NodoR>, ComparadorNodoR>& abiertos) {
+
+    NodoR sucesor = current_node;
+    sucesor.estado = applyR(act, current_node.estado, terreno, altura);
+    sucesor.g += costeCasillaR1(terreno[sucesor.estado.f][sucesor.estado.c]);
+    sucesor.secuencia.push_back(act);
+	
+    //si esta en cerrados ni lo toca
+    if (cerrados.find(sucesor) != cerrados.end()) return;
+    
+    //sino esta en abiertos o esta repey es el mejor le mete
+    auto it = abiertos_map.find(sucesor.estado);
+    if (it == abiertos_map.end() || sucesor.g < it->second.g) {
+        abiertos_map[sucesor.estado] = sucesor;
+        abiertos.push(sucesor);
+    }
+}
+
+list <Action> ComportamientoRescatador::AlgoritmoDjkstra(const EstadoR &ini, const EstadoR &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura){
+	
+	NodoR current_node; //nodo actual
+	priority_queue<NodoR, vector<NodoR>, ComparadorNodoR> abiertos; //estos son los nodos pendientes de visitar/expandir con prioridad por f(n)
+	set<NodoR> cerrados; //estos son los nodos ya visitados/expandidos que no vuelve a procesarlos
+	list<Action> path;
+	map<EstadoR, NodoR> abiertos_map;
+	
+	//inicializo el nodo actual
+	current_node.estado=ini;
+	current_node.g=0.0;
+	
+	//le metemos en abiertos porque no le hemos explorado todavia
+	abiertos.push(current_node);
+	abiertos_map[ini] = current_node;
+	
+	//hasta aqui abiertos tiene el nodo inicial y cerrados esta vacio
+	
+	bool SolutionFound=(current_node.estado.f==fin.f and current_node.estado.c==fin.c);	
+	//implementacion del algoritmo
+	//comienza un ciclo hasta que haya solucion o abiertos este vacio
+	while(!SolutionFound and !abiertos.empty()){ 
+	
+		//selecciono el mejor nodo de los abiertos (sacando los repetidos obsoletos si tiene)
+		do {
+		    current_node = abiertos.top();
+		    abiertos.pop();
+		} while (abiertos_map.find(current_node.estado) != abiertos_map.end() && current_node.g > abiertos_map[current_node.estado].g);
+
+	    	cerrados.insert(current_node);
+	    	abiertos_map.erase(current_node.estado);
+	    	
+	    	//mira a ver si tiene zapatillas
+			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
+				current_node.estado.zapatillas=true;
+			}
+	    	
+	    	//si es un nodo objetivo, terminar
+	    	if(current_node.estado.f==fin.f and current_node.estado.c==fin.c){
+	    		SolutionFound=true;
+	    		break;
+	    	}	
+		
+		//si no hay solucion, se expande
+		if(!SolutionFound){
+		
+			//generamos el sucesor WALK con su heurística
+			procesarSucesorR(WALK, current_node, fin, terreno, altura, cerrados, abiertos_map, abiertos);
+			procesarSucesorR(RUN, current_node, fin, terreno, altura, cerrados, abiertos_map, abiertos);
+			procesarSucesorR(TURN_SR, current_node, fin, terreno, altura, cerrados, abiertos_map, abiertos);
+			procesarSucesorR(TURN_L, current_node, fin, terreno, altura, cerrados, abiertos_map, abiertos);
+			
+		}
+	}
+	//devuelvo el camino si encuentra solucion
+	if(SolutionFound) path=current_node.secuencia;
+	
+	return path;
+}
+
+Action ComportamientoRescatador::ComportamientoRescatadorNivel_2(Sensores sensores){
+
+	Action accion = IDLE;
+	if (!hayPlan){
+		// Invocar al método de búsqueda
+		EstadoR inicio, fin;
+		inicio.f = sensores.posF;
+		inicio.c = sensores.posC;
+		inicio.brujula = sensores.rumbo;
+		inicio.zapatillas = tiene_zapatillas;
+		fin.f = sensores.destinoF;
+		fin.c = sensores.destinoC;
+		plan = AlgoritmoDjkstra(inicio, fin, mapaResultado, mapaCotas);
+		VisualizaPlanR(inicio,plan);
+		hayPlan = plan.size() != 0 ;
+	}
+	if (hayPlan and plan.size()>0){
+		accion = plan.front();
+		plan.pop_front();
+	}
+	if (plan.size()== 0){
+		hayPlan = false;
+	}
+	return accion;
+
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_3(Sensores sensores)
