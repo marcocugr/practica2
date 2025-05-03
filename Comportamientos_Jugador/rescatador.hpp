@@ -109,6 +109,9 @@ public:
   void AnularMatrizR(vector<vector<unsigned char>> &m);
   void VisualizaPlanR(const EstadoR &st, const list<Action> &plan);
   void PintaPlanR(const list<Action> &plan, bool zap);
+  bool esValidaR2(const EstadoR &estado, const vector<vector<unsigned char>> &terreno);
+  bool diferenciaAlturasCorrecta(const EstadoR &e1, const EstadoR &e2, const vector<vector<unsigned char>> &altura);
+  double costeMejoradoR2(const EstadoR &origen, const EstadoR &destino, Action accion, const vector<vector<unsigned char>>& terreno, const vector<vector<unsigned char>>& altura);
   
     //funciones niveles 2 y 3
   list <Action> AlgoritmoDjkstra(const EstadoR &ini, const EstadoR &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);

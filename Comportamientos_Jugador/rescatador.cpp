@@ -875,24 +875,48 @@ EstadoR ComportamientoRescatador::NextCasillaRescatador(const EstadoR &st){
 
 }
 
+bool ComportamientoRescatador::esValidaR2(const EstadoR &estado, const vector<vector<unsigned char>> &terreno){
+
+	if(terreno[estado.f][estado.c]=='B') return false;
+	else if(terreno[estado.f][estado.c]=='T') return true;
+	else if (terreno[estado.f][estado.c]=='A') return true;
+	else if (terreno[estado.f][estado.c]=='P') return false;
+	else if (terreno[estado.f][estado.c]=='C') return true;
+	else if (terreno[estado.f][estado.c]=='S') return true;
+	else if (terreno[estado.f][estado.c]=='M') return false;
+	else if (terreno[estado.f][estado.c]=='D') return true;
+	else if (terreno[estado.f][estado.c]=='X') return true;
+	else return false;
+
+}
+
+bool ComportamientoRescatador::diferenciaAlturasCorrecta(const EstadoR &e1, const EstadoR &e2, const vector<vector<unsigned char>> &altura){
+
+	int dif = (altura[e2.f][e2.c] - altura[e1.f][e1.c]);
+        return (dif <= 1 || (e1.zapatillas && dif <= 2));
+
+
+}
+
 //devuelve un estado en el que se queda donde esta, avanza, gira o corre
 EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura){
 	EstadoR next = st;
+	EstadoR intermedio;
 	switch(accion){
 	case WALK:
 		if (CasillaAccesibleRescatador(st,terreno,altura)){
 			next = NextCasillaRescatador(st);
 		}
 		break;
-	case RUN:
-		if (CasillaAccesibleRescatador(st,terreno,altura)){
-			EstadoR posible = NextCasillaRescatador(st);
-			if (CasillaAccesibleRescatador(posible,terreno,altura)){
-				next = NextCasillaRescatador(posible);
-			}
+	RUN:{
+		intermedio = NextCasillaRescatador(st); //seria como la siguiente a la actual
+		EstadoR final = NextCasillaRescatador(intermedio); // es la objetivo
+		//si la intermedia es transitable y no es la actual y 
+		if (esValidaR2(intermedio,terreno) && CasillaAccesibleRescatador(intermedio,terreno,altura) && diferenciaAlturasCorrecta(st, final, altura)) {
+			next = final;
 		}
-		break;	
+	}
 	case TURN_L:
 		next.brujula = (next.brujula+6)%8;
 		break;
@@ -917,32 +941,32 @@ void ComportamientoRescatador::VisualizaPlanR(const EstadoR &st, const list<Acti
 			switch (cst.brujula)
 			{
 				case 0:
-					cst.f--;
+					cst.f-=1;
 					break;
 				case 1:
-					cst.f--;
-					cst.c++;
+					cst.f-=1;
+					cst.c+=1;
 					break;
 				case 2:
-					cst.c++;
+					cst.c+=1;
 					break;
 				case 3:
-					cst.f++;
-					cst.c++;
+					cst.f+=1;
+					cst.c+=1;
 					break;
 				case 4:
-					cst.f++;
+					cst.f+=1;
 					break;
 				case 5:
-					cst.f++;
-					cst.c--;
+					cst.f+=1;
+					cst.c-=1;
 					break;
 				case 6:
-					cst.c--;
+					cst.c-=1;
 					break;
 				case 7:
-					cst.f--;
-					cst.c--;
+					cst.f-=1;
+					cst.c-=1;
 					break;
 			}
 			mapaConPlan[cst.f][cst.c] = 3;
@@ -992,6 +1016,110 @@ void ComportamientoRescatador::VisualizaPlanR(const EstadoR &st, const list<Acti
 	}
 }
 
+double ComportamientoRescatador::costeMejoradoR2(const EstadoR &origen, const EstadoR &destino, Action accion, const vector<vector<unsigned char>>& terreno, const vector<vector<unsigned char>>& altura){
+
+    double costeBase = 0;
+    double incrementoDecrecimiento = 0;
+    double alturaOr = altura[origen.f][origen.c];
+    double alturaDest = altura[destino.f][destino.c];
+
+    // Determinar el coste base según la acción y la casilla de origen
+    switch (accion) {
+        case WALK:
+            switch (terreno[origen.f][origen.c]) {
+                case 'A': costeBase = 100; break;
+                case 'T': costeBase = 20; break;
+                case 'S': costeBase = 2; break;
+                default: costeBase = 1; break;
+            }
+            break;
+
+        case RUN:
+            switch (terreno[origen.f][origen.c]) {
+                case 'A': costeBase = 150; break;
+                case 'T': costeBase = 35; break;
+                case 'S': costeBase = 3; break;
+                default: costeBase = 1; break;
+            }
+            break;
+
+        case TURN_L:
+            switch (terreno[origen.f][origen.c]) {
+                case 'A': costeBase = 30; break;
+                case 'T': costeBase = 5; break;
+                case 'S': costeBase = 1; break;
+                default: costeBase = 1; break;
+            }
+            break;
+
+        case TURN_SR:
+            switch (terreno[origen.f][origen.c]) {
+                case 'A': costeBase = 16; break;
+                case 'T': costeBase = 3; break;
+                case 'S': costeBase = 1; break;
+                default: costeBase = 1; break;
+            }
+            break;
+
+        default:
+            return -1; // Si la acción no está contemplada
+    }
+
+    // Determinar el incremento o decremento de energía según la diferencia de alturas
+    if (accion == WALK || accion == RUN) {
+    
+    	//si esta mas alta la casilla destino que la original
+        if (alturaDest > alturaOr) { 
+            switch (accion) {
+		case WALK:
+		    switch (terreno[origen.f][origen.c]) {
+		        case 'A': incrementoDecrecimiento = 10; break;
+		        case 'T': incrementoDecrecimiento = 5; break;
+		        case 'S': incrementoDecrecimiento = 1; break;
+		        default: incrementoDecrecimiento = 0; break;
+		    }
+		    break;
+
+		case RUN:
+		    switch (terreno[origen.f][origen.c]) {
+		        case 'A': incrementoDecrecimiento = 15; break;
+		        case 'T': incrementoDecrecimiento = 5; break;
+		        case 'S': incrementoDecrecimiento = 2; break;
+		        default: incrementoDecrecimiento = 0; break;
+		    }
+		    break;
+		}
+		
+        } else if (alturaDest < alturaOr) {
+        
+            switch (accion) {
+		case WALK:
+		    switch (terreno[origen.f][origen.c]) {
+		        case 'A': incrementoDecrecimiento = -10; break;
+		        case 'T': incrementoDecrecimiento = -5; break;
+		        case 'S': incrementoDecrecimiento = -1; break;
+		        default: incrementoDecrecimiento = 0; break;
+		    }
+		    break;
+
+		case RUN:
+		    switch (terreno[origen.f][origen.c]) {
+		        case 'A': incrementoDecrecimiento = -15; break;
+		        case 'T': incrementoDecrecimiento = -5; break;
+		        case 'S': incrementoDecrecimiento = -2; break;
+		        default: incrementoDecrecimiento = 0; break;
+		    }
+		    break;
+		}
+        }
+    }
+
+    // Calcular el coste final: base + incremento o decremento
+    double costeFinal = costeBase + incrementoDecrecimiento;
+    return costeFinal;
+
+}
+
 void ComportamientoRescatador::procesarSucesorR(Action act, const NodoR& current_node, const EstadoR& fin,
                      const vector<vector<unsigned char>>& terreno,
                      const vector<vector<unsigned char>>& altura,
@@ -1001,8 +1129,7 @@ void ComportamientoRescatador::procesarSucesorR(Action act, const NodoR& current
     
     NodoR sucesor = current_node;
     sucesor.estado = applyR(act, current_node.estado, terreno, altura);
-    if (sucesor.estado == current_node.estado) return; // si no va
-    sucesor.g += costeCasillaR1(terreno[sucesor.estado.f][sucesor.estado.c]);
+    sucesor.g += costeMejoradoR2(current_node.estado, sucesor.estado, act, terreno, altura);
     sucesor.secuencia.push_back(act);
 	
     //si esta en cerrados ni lo toca
@@ -1044,14 +1171,14 @@ list <Action> ComportamientoRescatador::AlgoritmoDjkstra(const EstadoR &ini, con
 		    current_node = abiertos.top();
 		    abiertos.pop();
 		} while (abiertos_map.find(current_node.estado) != abiertos_map.end() && current_node.g > abiertos_map[current_node.estado].g);
-
-	    	cerrados.insert(current_node);
-	    	abiertos_map.erase(current_node.estado);
-	    	
-	    	//mira a ver si tiene zapatillas
+		
+		//mira a ver si tiene zapatillas
 			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
 				current_node.estado.zapatillas=true;
 			}
+		
+	    	cerrados.insert(current_node);
+	    	abiertos_map.erase(current_node.estado);
 	    	
 	    	//si es un nodo objetivo, terminar
 	    	if(current_node.estado.f==fin.f and current_node.estado.c==fin.c){
