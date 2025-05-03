@@ -898,6 +898,32 @@ bool ComportamientoRescatador::diferenciaAlturasCorrecta(const EstadoR &e1, cons
 
 }
 
+bool ComportamientoRescatador::PuedeCorrerRescatador(const EstadoR& st, const vector<vector<unsigned char>>& terreno,
+                                                     const vector<vector<unsigned char>>& altura) {
+    EstadoR intermedia = NextCasillaRescatador(st);
+
+    // Casilla intermedia debe ser transitable
+    if (terreno[intermedia.f][intermedia.c] == 'P' || terreno[intermedia.f][intermedia.c] == 'M' || terreno[intermedia.f][intermedia.c] == 'B') {
+        return false;
+    }
+
+    EstadoR final = NextCasillaRescatador(intermedia);
+
+    // Casilla final debe ser transitable
+    if (terreno[final.f][final.c] == 'P' || terreno[final.f][final.c] == 'M' || terreno[final.f][final.c] == 'B') {
+        return false;
+    }
+
+    // Evaluamos altura entre actual y final
+    int dif_altura = abs(altura[final.f][final.c] - altura[st.f][st.c]);
+    if ((!st.zapatillas && dif_altura >= 2) || (st.zapatillas && dif_altura >= 3)) {
+        return false;
+    }
+
+    return true;
+}
+
+
 //devuelve un estado en el que se queda donde esta, avanza, gira o corre
 EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, const vector<vector<unsigned char>> &terreno,
 	const vector<vector<unsigned char>> &altura){
@@ -910,6 +936,14 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 		}
 		break;
 	case RUN:
+	
+	
+	if (PuedeCorrerRescatador(st, terreno, altura)) {
+        EstadoR intermedio = NextCasillaRescatador(st);
+        next = NextCasillaRescatador(intermedio);
+    }
+    break;
+	/*
 		if (CasillaAccesibleRescatador(st,terreno,altura)){
 			EstadoR posible = NextCasillaRescatador(st);
 			if (CasillaAccesibleRescatador(posible,terreno,altura)){
@@ -917,6 +951,7 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 			}
 		}
 		break;
+		*/
 	case TURN_L:
 		next.brujula = (next.brujula+6)%8;
 		break;

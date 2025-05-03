@@ -112,6 +112,8 @@ public:
   bool esValidaR2(const EstadoR &estado, const vector<vector<unsigned char>> &terreno);
   bool diferenciaAlturasCorrecta(const EstadoR &e1, const EstadoR &e2, const vector<vector<unsigned char>> &altura);
   double costeMejoradoR2(const EstadoR &origen, const EstadoR &destino, Action accion, const vector<vector<unsigned char>>& terreno, const vector<vector<unsigned char>>& altura);
+  bool PuedeCorrerRescatador(const EstadoR& st, const vector<vector<unsigned char>>& terreno,
+                                                     const vector<vector<unsigned char>>& altura);
   
     //funciones niveles 2 y 3
   list <Action> AlgoritmoDjkstra(const EstadoR &ini, const EstadoR &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
