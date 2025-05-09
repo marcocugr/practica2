@@ -1264,13 +1264,13 @@ int ComportamientoAuxiliar::esaParteAjustadoA(char i, char c, char d, bool zap, 
 		//si camino o sendero return
 		int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
 		
-		if(valida_i && (i=='C' || i=='S')){
+		if(valida_i && (i=='C' || i=='S'|| (i=='B' && zap==true) || i=='X')){
 			opcion_i=visitadas[pos_i.first][pos_i.second];
 		}
-		if(valida_c && (c=='C' || c=='S')){
+		if(valida_c && (c=='C' || c=='S'|| (c=='B' && zap==true) || c=='X')){
 			opcion_c=visitadas[pos_c.first][pos_c.second];
 		}
-		if(valida_d && (d=='C' || d=='S')){
+		if(valida_d && (d=='C' || d=='S'|| (d=='B' && zap==true) || d=='X')){
 			opcion_d=visitadas[pos_d.first][pos_d.second];
 		}
 		
@@ -1452,7 +1452,7 @@ Action ComportamientoAuxiliar::ajustado(Sensores sensores){
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 
-	if (sensores.energia >= 1000) {
+	if (sensores.energia >= 500) {
 		return ajustado(sensores);
 		//return ComportamientoAuxiliarNivel_1(sensores);
 		
@@ -1488,11 +1488,11 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 		
         	//return ComportamientoAuxiliarNivel_3(sensores);
         	
-        } else if (ChocaConRescatador(sensores.superficie[0])){
+        } else if (sensores.agentes[2]=='r'){
         
         	
-        //cout << "he chocado, soy el auxiliar" << endl;
-        return IDLE;
+        return ajustado(sensores);
+        //return IDLE;
         
         } else {
         	//cout << "estoy de vacaciones" << endl;

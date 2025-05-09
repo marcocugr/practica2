@@ -123,6 +123,10 @@ void procesarSucesorR(Action act, const NodoR& current_node, const EstadoR& fin,
                      set<NodoR>& cerrados,
                      map<EstadoR, NodoR>& abiertos_map,
                      priority_queue<NodoR, vector<NodoR>, ComparadorNodoR>& abiertos);
+                     
+                       //funciones nivel 4
+  int esaParteAjustadoR(char i, char c, char d, bool zap, int energia, int fila, int col);
+  Action ajustadoR(Sensores sensores);
 
   Action ComportamientoRescatadorNivel_0(Sensores sensores);
   Action ComportamientoRescatadorNivel_1(Sensores sensores);
