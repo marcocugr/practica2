@@ -434,6 +434,20 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 		accion=TURN_SR;
 	}
 	else {
+	
+	//romper ciclos
+	static int magia=5;
+	if (visitadas[sensores.posF][sensores.posC] >= magia) {
+		int probabilidad = std::rand() % 2; // 50% de probabilidad
+		magia++;
+		if (probabilidad == 0) {
+			    giro45Izq=6; //PONER 5 A LA DERECHA OSEA TURN_SR
+			    accion=TURN_SR;
+		} else {
+		    return TURN_SR;
+		}
+    	}
+	
 		char i= ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
 		char c= ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
 		char d= ViablePorAlturaA(sensores.superficie[3], sensores.cota[3]-sensores.cota[0]);
