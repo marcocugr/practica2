@@ -1487,8 +1487,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		lastC = sensores.posC;
 	    }
     	
-	if(sensores.energia >= 750) return ajustadoR(sensores);//ComportamientoRescatadorNivel_1(sensores);
-	
+    	if(mapaResultado[sensores.destinoF][sensores.destinoC]=='?') return ajustadoR(sensores);
 	if (sensores.posF != sensores.destinoF or sensores.posC != sensores.destinoC){
 		pasa=0;
 		//cout << "hola" << endl;
@@ -1540,6 +1539,6 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		//cout << "else final" << endl;
 		pasa=0;
 		return IDLE;
-	}
+	} 
 
 }
