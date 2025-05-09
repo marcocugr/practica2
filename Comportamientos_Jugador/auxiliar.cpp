@@ -1244,16 +1244,258 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores){
 
 }
 
+int ComportamientoAuxiliar::esaParteAjustadoA(char i, char c, char d, bool zap, int energia, int fila, int col){
+
+	bool valida_i=esValidaA1(i,energia);
+	bool valida_c=esValidaA1(c,energia);
+	bool valida_d=esValidaA1(d,energia);
+	int visitadas_actual=visitadas[fila][col];
+	
+	
+	if (valida_i || valida_c || valida_d){
+	
+		//prioridad a las zapatillas
+		if(!zap || visitadas_actual!=3){ 
+			if(c=='D') return 2;
+			else if(i=='D') return 1;
+			else if(d=='D') return 3;
+		}
+		
+		//si camino o sendero return
+		int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
+		
+		if(valida_i && (i=='C' || i=='S')){
+			opcion_i=visitadas[pos_i.first][pos_i.second];
+		}
+		if(valida_c && (c=='C' || c=='S')){
+			opcion_c=visitadas[pos_c.first][pos_c.second];
+		}
+		if(valida_d && (d=='C' || d=='S')){
+			opcion_d=visitadas[pos_d.first][pos_d.second];
+		}
+		
+		int menos_visitada_prioridad = std::min(opcion_c, std::min(opcion_d, opcion_i));
+		
+		if(menos_visitada_prioridad!=10000){ // si hay algun sendero o camino
+			if(menos_visitada_prioridad==opcion_c) return 2;
+			if(menos_visitada_prioridad==opcion_i) return 1;
+			return 3;
+		}
+		
+		
+		//if(visitadas_actual>=2){
+		
+			//si base o bosque con zapatillas return
+			int opcion_ib=10000, opcion_db=10000, opcion_cb=10000; //visitadas con prioridad
+			
+			if(valida_i && (i=='X' || (i=='B' && zap==true) || i=='T')){
+				opcion_ib=visitadas[pos_i.first][pos_i.second];
+			}
+			if(valida_c && (c=='X' || (c=='B' && zap==true) || c=='T')){
+				opcion_cb=visitadas[pos_c.first][pos_c.second];
+			}
+			if(valida_d && (d=='X' || (d=='B' && zap==true) || d=='T')){
+				opcion_db=visitadas[pos_d.first][pos_d.second];
+			}
+			
+			int menos_visitada_prioridadB = std::min(opcion_cb, std::min(opcion_db, opcion_ib));
+			
+			if(menos_visitada_prioridadB!=10000){ // si hay alguna base
+				if(menos_visitada_prioridadB==opcion_cb) return 2;
+				if(menos_visitada_prioridadB==opcion_ib) return 1;
+				return 3;
+			}
+			
+			
+			//if(visitadas_actual>=2 || valida_i+valida_c+valida_d==1){
+				//si agua return
+				int opcion_ia=10000, opcion_da=10000, opcion_ca=10000; //visitadas con prioridad
+				
+				if(valida_i && i=='A'){
+					opcion_ia=visitadas[pos_i.first][pos_i.second];
+				}
+				if(valida_c && c=='A'){
+					opcion_ca=visitadas[pos_c.first][pos_c.second];
+				}
+				if(valida_d && d=='A'){
+					opcion_da=visitadas[pos_d.first][pos_d.second];
+				}
+				
+				int menos_visitada_prioridadA = std::min(opcion_ca, std::min(opcion_da, opcion_ia));
+				
+				if(menos_visitada_prioridadA!=10000){ // si hay alguna agua
+					if(menos_visitada_prioridadA==opcion_ca) return 2;
+					if(menos_visitada_prioridadA==opcion_ia) return 1;
+					return 3;
+				}
+			//}
+			
+		//}
+		
+		
+	}
+	
+	return 0; //se queda donde esta porque no puede avanzar
+
+}
+
+Action ComportamientoAuxiliar::ajustado(Sensores sensores){
+
+	// El comportamiento de seguir un camino hasta encontrar un puesto base.
+	Action accion;
+	// El comportamiento de seguir un camino hasta encontrar un puesto base.
+	// Actualizacion de variables de estado
+	SituarSensorEnMapaA(mapaResultado, mapaCotas, sensores);
+	if(sensores.superficie[0]=='D'){
+		tiene_zapatillas=true;
+	}
+	
+	// Definicion del comportamiento
+	if (giro45Izq!=0){ //Estoy girando TURN_SL
+		accion=TURN_SR;
+		giro45Izq--;
+	}
+	else if(ChocaConRescatador(sensores.agentes[2])==true){
+		giro45Izq=1;
+		accion=TURN_SR;
+	}
+	else {
+		char i= ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
+		char c= ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
+		char d= ViablePorAlturaA(sensores.superficie[3], sensores.cota[3]-sensores.cota[0]);
+		int pos=esaParteAjustadoA(i, c, d, tiene_zapatillas, sensores.energia, sensores.posF, sensores.posC);
+		switch(pos){
+			case 2:
+				accion=WALK;
+				break;
+			case 1:
+				giro45Izq=6; //PONER 5 A LA DERECHA OSEA TURN_SR
+				accion=TURN_SR;
+				break;
+			case 3:
+				accion=TURN_SR;
+				break;
+			case 0:
+			//cout << "estoy en case 0, porque no hay salida de frente, buscando un lado" << endl;
+				int mejor=0; int rumbo_deseado;
+				mejor=mejorOpcionA1(tiene_zapatillas, sensores.energia);	//veo donde es mejor ir, di izquierda o derecha
+				if(mejor==0){ //si no habia salida, se da media vuelta 180º
+					//cout << "no podia seguir ni a derecha ni a izquierda, me doy la vuelta" << endl;
+					giro45Izq=2;
+					accion=TURN_SR;
+					
+				} else { //si es el camino izquierdo o derecho
+				//cout << "puedo seguir por derecha o izquierda" << endl;
+					int rumbo_deseado = (mejor == 1) ? (rumbo_anterior - 1 + 8) % 8 : (rumbo_anterior + 1) % 8; //veo cual de los dos es y ajustamos cual es la direccion deseada, si izquierda o derecha
+				/*
+				int diferencia = (rumbo_deseado - sensores.rumbo); //deseado menos actual nos dasu proximo rumbo osea derecha o izquierda
+				
+				*/
+				
+				
+				int diferencia = (rumbo_deseado - sensores.rumbo + 8) % 8; // Esto asegura que la diferencia siempre esté en el rango [0, 7]
+    
+    if (diferencia > 4) {
+        diferencia -= 8; // Normalizamos la diferencia a [-4, 4]
+    }
+				bool esDiagonal = (rumbo_deseado % 2 != 0);
+				
+					if(esDiagonal==false){
+					//cout << "estoy en una direccion diagonal" << endl;
+						if(diferencia>=0){ //tiene que girar a la derecha
+						//cout << "tengo que girar a la derecha" << endl;
+							giro45Izq=1;
+							accion=TURN_SR;
+						}else{ //tiene que girar a la izquierda
+						//cout << "tengo que girar a la izquierda" << endl;
+							giro45Izq=4;
+							accion=TURN_SR;
+						}
+					
+					} else {
+					//cout << "estoy en una direccion horizontal" << endl;
+						if(diferencia>=0){ //tiene que girar a la derecha
+						//cout << "tengo que girar a la derecha" << endl;
+							giro45Izq=1;
+							accion=TURN_SR;
+						}else{ //tiene que girar a la izquierda
+						//cout << "tengo que girar a la izquierda" << endl;
+							giro45Izq=5;
+							accion=TURN_SR;
+						}
+					}
+				
+				}
+				
+				break;
+		}
+	
+	}
+	
+	
+	//Devolver la siguiente acion a hacer
+	//Devolver la siguiente acion a hacer
+	last_action=accion;
+	actualMia[0]=sensores.superficie[1];
+	actualMia[1]=sensores.superficie[2]; 
+	actualMia[2]=sensores.superficie[3];
+	if(sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC) {
+		visitadas[sensores.posF][sensores.posC]++;
+	}
+	posAnteriorF=sensores.posF;
+	posAnteriorC=sensores.posC;
+	//cout << "he actualizado mi casilla de veces visitadas, ahora vale" << visitadas[sensores.posF][sensores.posC] << endl;
+	rumbo_anterior=sensores.rumbo;
+	return accion;
+
+}
+
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 
-	if (sensores.energia >= 2750) {
-		return ComportamientoAuxiliarNivel_1(sensores);
+	if (sensores.energia >= 1000) {
+		return ajustado(sensores);
+		//return ComportamientoAuxiliarNivel_1(sensores);
 		
 	} else if (sensores.venpaca) {
-		cout << "estoy en venpaca true" << endl;
-        	return ComportamientoAuxiliarNivel_3(sensores);
+		//cout << "estoy en venpaca true" << endl;
+		
+		
+		Action accion = IDLE;
+		if(sensores.choque){
+			hayPlan=false;
+		}
+		if (!hayPlan){
+			// Invocar al método de búsqueda
+			EstadoA inicio, fin;
+			inicio.f = sensores.posF;
+			inicio.c = sensores.posC;
+			inicio.brujula = sensores.rumbo;
+			inicio.zapatillas = tiene_zapatillas;
+			fin.f = sensores.destinoF;
+			fin.c = sensores.destinoC;
+			plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
+			VisualizaPlan(inicio,plan);
+			hayPlan = plan.size() != 0 ;
+		}
+		if (hayPlan and plan.size()>0){
+			accion = plan.front();
+			plan.pop_front();
+		}
+		if (plan.size()== 0){
+			hayPlan = false;
+		}
+		return accion;
+		
+        	//return ComportamientoAuxiliarNivel_3(sensores);
         	
+        } else if (ChocaConRescatador(sensores.superficie[0])){
+        
+        	
+        //cout << "he chocado, soy el auxiliar" << endl;
+        return IDLE;
+        
         } else {
+        	//cout << "estoy de vacaciones" << endl;
         	return IDLE;
         }
 

@@ -126,6 +126,10 @@ void procesarSucesor(Action act, const NodoA& current_node, const EstadoA& fin,
                      map<EstadoA, NodoA>& abiertos_map,
                      priority_queue<NodoA, vector<NodoA>, ComparadorNodoA>& abiertos);
 
+  //funciones nivel 4
+  int esaParteAjustadoA(char i, char c, char d, bool zap, int energia, int fila, int col);
+  Action ajustado(Sensores sensores);
+
 
   Action ComportamientoAuxiliarNivel_0(Sensores sensores);
   Action ComportamientoAuxiliarNivel_1(Sensores sensores);

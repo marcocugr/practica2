@@ -1282,11 +1282,41 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		lastC = sensores.posC;
 	    }
     	
-	if(sensores.energia >= 2750) return ComportamientoRescatadorNivel_1(sensores);
+	if(sensores.energia >= 2250) return ComportamientoRescatadorNivel_1(sensores);
 	if (sensores.posF != sensores.destinoF or sensores.posC != sensores.destinoC){
 		pasa=0;
 		//cout << "hola" << endl;
-		return ComportamientoRescatadorNivel_2(sensores);
+		
+		
+		
+		Action accion = IDLE;
+		if(sensores.choque){
+			hayPlan=false;
+		}
+		if (!hayPlan){
+			// Invocar al método de búsqueda
+			EstadoR inicio, fin;
+			inicio.f = sensores.posF;
+			inicio.c = sensores.posC;
+			inicio.brujula = sensores.rumbo;
+			inicio.zapatillas = tiene_zapatillas;
+			fin.f = sensores.destinoF;
+			fin.c = sensores.destinoC;
+			plan = AlgoritmoDjkstra(inicio, fin, mapaResultado, mapaCotas);
+			VisualizaPlanR(inicio,plan);
+			hayPlan = plan.size() != 0 ;
+		}
+		if (hayPlan and plan.size()>0){
+			accion = plan.front();
+			plan.pop_front();
+		}
+		if (plan.size()== 0){
+			hayPlan = false;
+		}
+		return accion;
+		
+		
+		//return ComportamientoRescatadorNivel_2(sensores);
 	
 	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad){
 		if (pasa == 0) {
