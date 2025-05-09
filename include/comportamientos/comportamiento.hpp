@@ -34,7 +34,7 @@ struct Sensores {
   int destinoF;
   int destinoC;
   bool venpaca;  // Avisa al auxiliar que vaya a las coordenadas destino
-  int gravedad;  // Indica la gravedad del accidentado 0: no se sabe, 1: puede andar por su propio pie, 2: necesita ayuda para andar.
+  bool gravedad;  // Indica la gravedad del accidentado: True => Necesita auxiliar 
 
 };
 
@@ -51,7 +51,7 @@ class Comportamiento {
     Comportamiento(vector< vector< unsigned char> > mapaR, vector< vector< unsigned char> > mapaC );
     Comportamiento(const Comportamiento & comport) : mapaEntidades(comport.mapaEntidades), mapaResultado(comport.mapaResultado), mapaCotas(comport.mapaCotas), mapaConPlan(comport.mapaConPlan) {}
     Comportamiento * clone(){return new Comportamiento(*this);}
-    ~Comportamiento(){}
+    virtual ~Comportamiento(){}
 
     virtual Action think(Sensores sensores);
 
