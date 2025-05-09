@@ -1245,8 +1245,8 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores){
 }
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
-
-	if(sensores.venpaca) return ComportamientoAuxiliarNivel_3(sensores);
+	if (sensores.energia >= 2750) return ComportamientoAuxiliarNivel_1(sensores);
+	else if(sensores.venpaca) return ComportamientoAuxiliarNivel_3(sensores);
 	else return IDLE;
 
 }
