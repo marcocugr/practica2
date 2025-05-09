@@ -892,33 +892,25 @@ bool ComportamientoRescatador::esValidaR2(const EstadoR &estado, const vector<ve
 
 bool ComportamientoRescatador::diferenciaAlturasCorrecta(const EstadoR &e1, const EstadoR &e2, const vector<vector<unsigned char>> &altura){
 
-	int dif = (altura[e2.f][e2.c] - altura[e1.f][e1.c]);
+	int dif = abs(altura[e2.f][e2.c] - altura[e1.f][e1.c]);
         return (dif <= 1 || (e1.zapatillas && dif <= 2));
-
 
 }
 
 bool ComportamientoRescatador::PuedeCorrerRescatador(const EstadoR& st, const vector<vector<unsigned char>>& terreno,
                                                      const vector<vector<unsigned char>>& altura) {
     EstadoR intermedia = NextCasillaRescatador(st);
-
+    
     // Casilla intermedia debe ser transitable
-    if (terreno[intermedia.f][intermedia.c] == 'P' || terreno[intermedia.f][intermedia.c] == 'M' || terreno[intermedia.f][intermedia.c] == 'B') {
-        return false;
-    }
+    if(!esValidaR2(intermedia, terreno)) return false;
 
-    EstadoR final = NextCasillaRescatador(intermedia);
+    EstadoR finall = NextCasillaRescatador(intermedia);
 
     // Casilla final debe ser transitable
-    if (terreno[final.f][final.c] == 'P' || terreno[final.f][final.c] == 'M' || terreno[final.f][final.c] == 'B') {
-        return false;
-    }
+    if(!esValidaR2(finall, terreno)) return false;
 
-    // Evaluamos altura entre actual y final
-    int dif_altura = abs(altura[final.f][final.c] - altura[st.f][st.c]);
-    if ((!st.zapatillas && dif_altura >= 2) || (st.zapatillas && dif_altura >= 3)) {
-        return false;
-    }
+    //comprobamos diferencias de alturas entre inicial y final, pero no de la intermedia
+    if(!diferenciaAlturasCorrecta(st,finall,altura)) return false;
 
     return true;
 }
@@ -936,22 +928,12 @@ EstadoR ComportamientoRescatador::applyR(Action accion, const EstadoR & st, cons
 		}
 		break;
 	case RUN:
-	
-	
-	if (PuedeCorrerRescatador(st, terreno, altura)) {
-        EstadoR intermedio = NextCasillaRescatador(st);
-        next = NextCasillaRescatador(intermedio);
-    }
-    break;
-	/*
-		if (CasillaAccesibleRescatador(st,terreno,altura)){
-			EstadoR posible = NextCasillaRescatador(st);
-			if (CasillaAccesibleRescatador(posible,terreno,altura)){
-				next = NextCasillaRescatador(posible);
-			}
+		if (PuedeCorrerRescatador(st, terreno, altura)) {
+			EstadoR intermedio = NextCasillaRescatador(st);
+			next = NextCasillaRescatador(intermedio);
 		}
-		break;
-		*/
+        	break;
+
 	case TURN_L:
 		next.brujula = (next.brujula+6)%8;
 		break;
@@ -1164,7 +1146,6 @@ void ComportamientoRescatador::procesarSucesorR(Action act, const NodoR& current
     
     NodoR sucesor = current_node;
     sucesor.estado = applyR(act, current_node.estado, terreno, altura);
-    //sucesor.g += costeCasillaR1(terreno[sucesor.estado.f][sucesor.estado.c]);
     sucesor.g += costeMejoradoR2(current_node.estado, sucesor.estado, act, terreno, altura);
     sucesor.secuencia.push_back(act);
 	
@@ -1189,7 +1170,7 @@ list <Action> ComportamientoRescatador::AlgoritmoDjkstra(const EstadoR &ini, con
 	
 	//inicializo el nodo actual
 	current_node.estado=ini;
-	current_node.g=0.0;
+	current_node.g=0;
 	
 	//le metemos en abiertos porque no le hemos explorado todavia
 	abiertos.push(current_node);
@@ -1211,17 +1192,18 @@ list <Action> ComportamientoRescatador::AlgoritmoDjkstra(const EstadoR &ini, con
 	    	cerrados.insert(current_node);
 	    	abiertos_map.erase(current_node.estado);
 	    	
-	    	//si es un nodo objetivo, terminar
-	    	if(current_node.estado.f==fin.f and current_node.estado.c==fin.c){
-	    		SolutionFound=true;
-	    		break;
-	    	}	
-	    	
 	    	//mira a ver si tiene zapatillas
 			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
 				current_node.estado.zapatillas=true;
 			}
 		
+	    	
+	    	//si es un nodo objetivo, terminar
+	    	if(current_node.estado.f==fin.f and current_node.estado.c==fin.c){
+	    		SolutionFound=true;
+	    		break;
+	    	}	
+	    
 		//si no hay solucion, se expande
 		if(!SolutionFound){
 		
@@ -1314,13 +1296,13 @@ int ComportamientoRescatador::esaParteAjustadoR(char i, char c, char d, bool zap
 			//si base o bosque con zapatillas return
 			int opcion_ib=10000, opcion_db=10000, opcion_cb=10000; //visitadas con prioridad
 			
-			if(valida_i && (i=='X' || (i=='B' && zap==true) || i=='T')){
+			if(valida_i && (i=='X' || i=='T')){
 				opcion_ib=visitadas[pos_i.first][pos_i.second];
 			}
-			if(valida_c && (c=='X' || (c=='B' && zap==true) || c=='T')){
+			if(valida_c && (c=='X' || c=='T')){
 				opcion_cb=visitadas[pos_c.first][pos_c.second];
 			}
-			if(valida_d && (d=='X' || (d=='B' && zap==true) || d=='T')){
+			if(valida_d && (d=='X' || d=='T')){
 				opcion_db=visitadas[pos_d.first][pos_d.second];
 			}
 			
@@ -1505,7 +1487,7 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		lastC = sensores.posC;
 	    }
     	
-	if(sensores.energia >= 600) return ajustadoR(sensores);//ComportamientoRescatadorNivel_1(sensores);
+	if(sensores.energia >= 750) return ajustadoR(sensores);//ComportamientoRescatadorNivel_1(sensores);
 	
 	if (sensores.posF != sensores.destinoF or sensores.posC != sensores.destinoC){
 		pasa=0;

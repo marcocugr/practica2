@@ -1288,13 +1288,13 @@ int ComportamientoAuxiliar::esaParteAjustadoA(char i, char c, char d, bool zap, 
 			//si base o bosque con zapatillas return
 			int opcion_ib=10000, opcion_db=10000, opcion_cb=10000; //visitadas con prioridad
 			
-			if(valida_i && (i=='X' || (i=='B' && zap==true) || i=='T')){
+			if(valida_i && i=='T'){
 				opcion_ib=visitadas[pos_i.first][pos_i.second];
 			}
-			if(valida_c && (c=='X' || (c=='B' && zap==true) || c=='T')){
+			if(valida_c && c=='T'){
 				opcion_cb=visitadas[pos_c.first][pos_c.second];
 			}
-			if(valida_d && (d=='X' || (d=='B' && zap==true) || d=='T')){
+			if(valida_d && d=='T'){
 				opcion_db=visitadas[pos_d.first][pos_d.second];
 			}
 			
@@ -1451,8 +1451,9 @@ Action ComportamientoAuxiliar::ajustado(Sensores sensores){
 }
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
-
-	if (sensores.energia >= 500) {
+	
+	static int trampa=0;
+	if (sensores.energia >= 700) {
 		return ajustado(sensores);
 		//return ComportamientoAuxiliarNivel_1(sensores);
 		
@@ -1488,14 +1489,19 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 		
         	//return ComportamientoAuxiliarNivel_3(sensores);
         	
-        } else if (sensores.agentes[2]=='r'){
-        
+        } else if (sensores.agentes[2]=='r' || sensores.agentes[1]=='r' || sensores.agentes[2]=='r'){
+        trampa++;
         	
         return ajustado(sensores);
         //return IDLE;
         
         } else {
-        	//cout << "estoy de vacaciones" << endl;
+        	if (trampa>0){
+        	trampa=0;
+        	 return WALK;
+        	
+        	}
+        	cout << "estoy de vacaciones" << endl;
         	return IDLE;
         }
 
