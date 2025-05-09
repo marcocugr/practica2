@@ -1245,8 +1245,18 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores){
 }
 
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
-	if (sensores.energia >= 2750) return ComportamientoAuxiliarNivel_1(sensores);
-	else if(sensores.venpaca) return ComportamientoAuxiliarNivel_3(sensores);
-	else return IDLE;
+
+	if (sensores.energia >= 2750) {
+		cout << "Activando Nivel 1 (Exploración)" << endl;
+		return ComportamientoAuxiliarNivel_1(sensores);
+	    } 
+    else if (sensores.venpaca) {
+        cout << "Activando Nivel 3 (A*) - venpaca es true" << endl;
+        return ComportamientoAuxiliarNivel_3(sensores);
+    }
+    else {
+        cout << "Estado IDLE - venpaca es false" << endl;
+        return IDLE;
+    }
 
 }

@@ -1271,18 +1271,31 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_3(Sensores sensor
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensores){
-	int pasa=0;
+
+	static int pasa = 0;
+    	static int lastF = -1;
+    	static int lastC = -1;
+    	
+    	if (sensores.posF != lastF || sensores.posC != lastC) {
+		pasa = 0;
+		lastF = sensores.posF;
+		lastC = sensores.posC;
+	    }
+    	
 	if(sensores.energia >= 2750) return ComportamientoRescatadorNivel_1(sensores);
 	else if (sensores.posF != sensores.destinoF and sensores.posC != sensores.destinoC){
 		pasa=0;
 		return ComportamientoRescatadorNivel_2(sensores);
 	
-	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad and pasa==0){
-		cout << "es urgente, activo el venpaca" << endl;
-		pasa++;
-		return CALL_ON;
+	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad){
+		if (pasa == 0) {
+		    pasa++;
+		    return CALL_ON;
+		} else {
+		    return IDLE;
+		}
 		
-	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and !sensores.gravedad){
+	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad==0){
 		cout << "NO es urgente, NO activo el venpaca" << endl;
 		return CALL_OFF;
 		
