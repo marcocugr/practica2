@@ -444,6 +444,18 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_0(Sensores sensor
 	}
 	
 	else {
+	
+	//romper ciclos
+	static int magia=5;
+	if (visitadas[sensores.posF][sensores.posC] >= magia) {
+		int probabilidad = std::rand() % 2; // 50% de probabilidad
+		magia++;
+		if (probabilidad == 0) {
+			    return TURN_L;
+		} else {
+		    return TURN_SR;
+		}
+    	}
 		//en estos 3 char, filtro y veo a ver si puedo o no pasar por la altura
 		char i= ViablePorAlturaR(sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
 		char c= ViablePorAlturaR(sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
@@ -1376,6 +1388,7 @@ Action ComportamientoRescatador::ajustadoR(Sensores sensores){
 	}
 	
 	else {
+	
 		//en estos 3 char, filtro y veo a ver si puedo o no pasar por la altura
 		char i= ViablePorAlturaR(sensores.superficie[1], sensores.cota[1]-sensores.cota[0], tiene_zapatillas);
 		char c= ViablePorAlturaR(sensores.superficie[2], sensores.cota[2]-sensores.cota[0], tiene_zapatillas);
