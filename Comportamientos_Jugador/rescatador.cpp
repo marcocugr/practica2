@@ -1283,8 +1283,9 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 	    }
     	
 	if(sensores.energia >= 2750) return ComportamientoRescatadorNivel_1(sensores);
-	else if (sensores.posF != sensores.destinoF and sensores.posC != sensores.destinoC){
+	if (sensores.posF != sensores.destinoF or sensores.posC != sensores.destinoC){
 		pasa=0;
+		//cout << "hola" << endl;
 		return ComportamientoRescatadorNivel_2(sensores);
 	
 	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad){
@@ -1292,13 +1293,17 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		    pasa++;
 		    return CALL_ON;
 		} else {
+		//cout << "else del call on idle" << endl;
 		    return IDLE;
 		}
 		
 	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad==0){
-		cout << "NO es urgente, NO activo el venpaca" << endl;
 		return CALL_OFF;
 		
-	} else return IDLE;
+	} else {
+		//cout << "else final" << endl;
+		pasa=0;
+		return IDLE;
+	}
 
 }
