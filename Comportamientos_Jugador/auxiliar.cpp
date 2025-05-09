@@ -22,7 +22,7 @@ Action ComportamientoAuxiliar::think(Sensores sensores)
 		// accion = ComportamientoAuxiliarNivel_E (sensores);
 		break;
 	case 4:
-		// accion = ComportamientoAuxiliarNivel_4 (sensores);
+		accion = ComportamientoAuxiliarNivel_4 (sensores);
 		break;
 	}
 
@@ -1244,6 +1244,9 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores){
 
 }
 
-Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores)
-{
+Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
+
+	if(sensores.venpaca) return ComportamientoAuxiliarNivel_3(sensores);
+	else return IDLE;
+
 }
