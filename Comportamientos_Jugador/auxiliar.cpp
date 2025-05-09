@@ -34,11 +34,11 @@ int ComportamientoAuxiliar::interact(Action accion, int valor)
 	return 0;
 }
 
-int ComportamientoAuxiliar::VeoCasillaInteresanteA(char i, char c, char d, bool zap){
+int ComportamientoAuxiliar::VeoCasillaInteresanteA(char i, char c, char d, bool zap, char ai, char ac, char ad){
 	//si hay un puesto base acaba
-	if(c=='X') return 2; 
-	else if (i=='X') return 1;
-	else if (d=='X') return 3;
+	if(c=='X' and ac!='r') return 2; 
+	else if (i=='X' and ai!='r') return 1;
+	else if (d=='X' and ad!='r') return 3;
 	
 	//pillar zapatillas si no tiene
 	//if(!zap){ 
@@ -437,7 +437,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_0(Sensores sensores)
 		char i= ViablePorAlturaA(sensores.superficie[1], sensores.cota[1]-sensores.cota[0]);
 		char c= ViablePorAlturaA(sensores.superficie[2], sensores.cota[2]-sensores.cota[0]);
 		char d= ViablePorAlturaA(sensores.superficie[3], sensores.cota[3]-sensores.cota[0]);
-		int pos=VeoCasillaInteresanteA(i, c, d, tiene_zapatillas);
+		int pos=VeoCasillaInteresanteA(i, c, d, tiene_zapatillas, sensores.agentes[1], sensores.agentes[2], sensores.agentes[3]);
 		switch(pos){
 			case 2:
 				accion=WALK;
