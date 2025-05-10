@@ -1501,7 +1501,7 @@ Action ComportamientoRescatador::ajustadoR(Sensores sensores){
 }
 
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensores){
-
+	
 	static int pasa = 0;
     	static int lastF = -1;
     	static int lastC = -1;
@@ -1514,8 +1514,12 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
     	
     	if(mapaResultado[sensores.destinoF][sensores.destinoC]=='?'){
     	
-    		if(mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S') return ComportamientoRescatadorNivel_1(sensores);
-    		else return  ajustadoR(sensores);
+    		if(visitadas[sensores.posF][sensores.posC]<=5 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
+    			return ComportamientoRescatadorNivel_1(sensores);
+    			
+    		} else {
+    			return  ajustadoR(sensores);
+    		}
     	
     	} //return ajustadoR(sensores);
 	if (sensores.posF != sensores.destinoF or sensores.posC != sensores.destinoC){
@@ -1570,5 +1574,10 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		pasa=0;
 		return IDLE;
 	} 
+	
+	if(sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC) {
+		visitadas[sensores.posF][sensores.posC]++;
+	}
+	
 
 }

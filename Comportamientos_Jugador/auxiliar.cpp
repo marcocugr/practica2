@@ -1522,21 +1522,27 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	static bool cuenta=false;
 	
 	//si no sabe donde esta, explora
-	if (!sensores.venpaca || mapaResultado[sensores.destinoF][sensores.destinoC]!='?' || cuenta) {
+	if (!sensores.venpaca || cuenta) {
 	
 		if(sensores.energia<2000 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
 			cout << "hola lvl " << endl;
+			cout << "cuenta vale" << contadorAvance << endl;
 			devolver=ComportamientoAuxiliarNivel_1(sensores);
 
 			
 		}  else {
 			cout << "hola ajustado " << endl;
+			cout << "cuenta vale" << contadorAvance << endl;
 			devolver=ajustado(sensores);
+		}
+		
+		if (devolver!=TURN_SR and cuenta){
+			contadorAvance++;
 		}
 
 	//si no sabe donde esta pero le han llamado que vaya a una cercana a buscar y no tiene que contar casillas
-	} else if(sensores.venpaca and !cuenta and
-					(
+	} else if(sensores.venpaca and !cuenta and visitadas[sensores.destinoF][sensores.destinoC]==0
+					/*(
 					mapaResultado[sensores.destinoF-1][sensores.destinoC]=='?' ||
 					mapaResultado[sensores.destinoF-1][sensores.destinoC+1]=='?' ||
 					mapaResultado[sensores.destinoF][sensores.destinoC+1]=='?' ||
@@ -1544,13 +1550,14 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 					mapaResultado[sensores.destinoF+1][sensores.destinoC]=='?' ||
 					mapaResultado[sensores.destinoF+1][sensores.destinoC-1]=='?' ||
 					mapaResultado[sensores.destinoF][sensores.destinoC-1]=='?' ||
-					mapaResultado[sensores.destinoF-1][sensores.destinoC-1]=='?')){
+					mapaResultado[sensores.destinoF-1][sensores.destinoC-1]=='?')*/){
 		
 		int fCercana=-1, cCercana=-1;
 		casillaDescubiertaMasCercana(sensores.destinoF, sensores.destinoC, fCercana, cCercana, mapaResultado);
 		
 		if(sensores.posF==fCercana && sensores.posC==cCercana){
 			cuenta=true;
+			contadorAvance=0;
 			cout << "salgo de pillado" << endl;
 		}
 		
@@ -1584,15 +1591,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	
 	
 	//si sabe donde esta, que trace un plan	
-	} else if (sensores.venpaca and (
-					mapaResultado[sensores.destinoF-1][sensores.destinoC]!='?' ||
-					mapaResultado[sensores.destinoF-1][sensores.destinoC+1]!='?' ||
-					mapaResultado[sensores.destinoF][sensores.destinoC+1]!='?' ||
-					mapaResultado[sensores.destinoF+1][sensores.destinoC+1]!='?' ||
-					mapaResultado[sensores.destinoF+1][sensores.destinoC]!='?' ||
-					mapaResultado[sensores.destinoF+1][sensores.destinoC-1]!='?' ||
-					mapaResultado[sensores.destinoF][sensores.destinoC-1]!='?' ||
-					mapaResultado[sensores.destinoF-1][sensores.destinoC-1]!='?')) {
+	} else if (sensores.venpaca and visitadas[sensores.destinoF][sensores.destinoC]>0) {
 	cout << "hola a*" << endl;
 
 		Action accion = IDLE;
@@ -1623,14 +1622,22 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
         	
         } 
         
-        
+        /*
         //si avanza a una casilla nueva y no tiene que ir a la cercana, se incrementan los pasos
-        if(sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC and cuenta) {
-		contadorAvance++;
+        if((sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC) and cuenta) {
+		//contadorAvance++;
+		cout << "contadorAvance incrementado a: " << contadorAvance << endl;
+	}
+	*/
+	//si ha avanzado 50 y sigue sin encontrar, vuelve a la mas cercana a intentarlo de nuevo
+	if(cuenta && contadorAvance >=50){
+		cuenta=false;
+		contadorAvance = 0;
+        	cout << "reinicio de cuenta" << endl;
 	}
 	
-	//si ha avanzado 50 y sigue sin encontrar, vuelve a la mas cercana a intentarlo de nuevo
-	if(contadorAvance%50==0){
+	if(!sensores.venpaca){
+		contadorAvance = 0;
 		cuenta=false;
 	}
         
