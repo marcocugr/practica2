@@ -1060,6 +1060,7 @@ void ComportamientoRescatador::VisualizaPlanR(const EstadoR &st, const list<Acti
 double ComportamientoRescatador::costeMejoradoR2(const EstadoR &origen, const EstadoR &destino, Action accion, const vector<vector<unsigned char>>& terreno, const vector<vector<unsigned char>>& altura){
 
     double costeBase = 0;
+    bool zap=origen.zapatillas;
     double incrementoDecrecimiento = 0;
     double alturaOr = altura[origen.f][origen.c];
     double alturaDest = altura[destino.f][destino.c];
@@ -1110,7 +1111,7 @@ double ComportamientoRescatador::costeMejoradoR2(const EstadoR &origen, const Es
     if (accion == WALK || accion == RUN) {
     
     	//si esta mas alta la casilla destino que la original
-        if (alturaDest > alturaOr) { 
+        if (alturaDest-alturaOr==1 || (alturaDest-alturaOr==2 and zap) ) { 
             switch (accion) {
 		case WALK:
 		    switch (terreno[origen.f][origen.c]) {
@@ -1131,7 +1132,7 @@ double ComportamientoRescatador::costeMejoradoR2(const EstadoR &origen, const Es
 		    break;
 		}
 		
-        } else if (alturaDest < alturaOr) {
+        } else if (alturaDest-alturaOr==-1 || (alturaDest-alturaOr==-2 and zap)) {
         
             switch (accion) {
 		case WALK:
