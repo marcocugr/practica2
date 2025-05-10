@@ -1231,6 +1231,7 @@ void ComportamientoAuxiliar::procesarSucesor(Action act, const NodoA& current_no
 
     NodoA sucesor = current_node;
     sucesor.estado = applyA(act, current_node.estado, terreno, altura);
+    if(sucesor.estado==current_node.estado) return;
     //sucesor.g += costeCasillaA1(terreno[sucesor.estado.f][sucesor.estado.c], sucesor.estado.zapatillas);
     sucesor.g+=costeMejoradoA3(current_node.estado, sucesor.estado, act, terreno, altura);
     sucesor.h = calcularHeuristicaA(sucesor.estado, fin);
