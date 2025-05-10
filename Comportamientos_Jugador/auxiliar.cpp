@@ -589,13 +589,13 @@ int ComportamientoAuxiliar::VeoCasillaInteresanteA1(char i, char c, char d, bool
 		//si camino o sendero return
 		int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
 		
-		if(valida_i && (i=='C' || i=='S')){
+		if(valida_i && (i=='C' || i=='S' || i=='X')){
 			opcion_i=visitadas[pos_i.first][pos_i.second];
 		}
-		if(valida_c && (c=='C' || c=='S')){
+		if(valida_c && (c=='C' || c=='S' || c=='X')){
 			opcion_c=visitadas[pos_c.first][pos_c.second];
 		}
-		if(valida_d && (d=='C' || d=='S')){
+		if(valida_d && (d=='C' || d=='S' || d=='X')){
 			opcion_d=visitadas[pos_d.first][pos_d.second];
 		}
 		
@@ -1524,7 +1524,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	//si no sabe donde esta, explora
 	if (!sensores.venpaca || mapaResultado[sensores.destinoF][sensores.destinoC]!='?' || cuenta) {
 	
-		if(sensores.energia<2300 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
+		if(sensores.energia<2000 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
 			cout << "hola lvl " << endl;
 			devolver=ComportamientoAuxiliarNivel_1(sensores);
 
