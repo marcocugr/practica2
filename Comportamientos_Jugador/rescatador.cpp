@@ -604,13 +604,13 @@ int ComportamientoRescatador::VeoCasillaInteresanteR1(char i, char c, char d, bo
 		//si camino o sendero return
 		int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
 		
-		if(valida_i && (i=='C' || i=='S' || i=='X')){
+		if(valida_i && (i=='C' || i=='S')){
 			opcion_i=visitadas[pos_i.first][pos_i.second];
 		}
-		if(valida_c && (c=='C' || c=='S' || c=='X')){
+		if(valida_c && (c=='C' || c=='S')){
 			opcion_c=visitadas[pos_c.first][pos_c.second];
 		}
-		if(valida_d && (d=='C' || d=='S' || d=='X')){
+		if(valida_d && (d=='C' || d=='S')){
 			opcion_d=visitadas[pos_d.first][pos_d.second];
 		}
 		
