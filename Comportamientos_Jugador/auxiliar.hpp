@@ -38,24 +38,25 @@
 	 int g;
 	 double h;
 	 list<Action> secuencia;
-	 bool operator==(const NodoA &node) const{
-	 return estado == node.estado;
+	 
+	  bool operator==(const NodoA &node) const{
+	 	return estado == node.estado;
 	 }
 	 bool operator<(const NodoA &node) const{
-	 if (estado.f < node.estado.f) return true;
-	 else if (estado.f == node.estado.f and estado.c < node.estado.c) return true;
-	 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula <
-	node.estado.brujula) return true;
-	 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula ==
-	node.estado.brujula and estado.zapatillas < node.estado.zapatillas) return true;
-	 else return false;
-	 }
+		 if (estado.f < node.estado.f) return true;
+		 else if (estado.f == node.estado.f and estado.c < node.estado.c) return true;
+		 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula <
+		node.estado.brujula) return true;
+		 else if (estado.f == node.estado.f and estado.c == node.estado.c and estado.brujula ==
+		node.estado.brujula and estado.zapatillas < node.estado.zapatillas) return true;
+		 else return false;
+		 }
 	};
 	
 	//para el A*
 	struct ComparadorNodoA {
 	 bool operator()(const NodoA &a, const NodoA &b) const {
-		return a.fn > b.fn; // menor f(n) tiene mayor prioridad (porque priority_queue ordena de mayor a menor)
+		return (a.fn > b.fn); // menor f(n) tiene mayor prioridad (porque priority_queue ordena de mayor a menor)
 	 }
 	};
 
@@ -115,7 +116,8 @@ public:
   list <Action> AnchuraAuxiliar_V2(const EstadoA &ini, const EstadoA &fin, const vector<vector<unsigned char>> &terreno, const vector<vector<unsigned char>> &altura);
   
   //funciones niveles 2 y 3
-  double calcularHeuristicaA(const EstadoA &actual, const EstadoA &destino);
+  double calcularHeuristicaA(const EstadoA &actual, const EstadoA &destino, const vector<vector<unsigned char>> &altura);
+  
   bool estaEnPriorityQueue(priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> pq, const NodoA& objetivo);
   void insertarElMejorNodo(priority_queue<NodoA, vector<NodoA>, ComparadorNodoA> &pq, const NodoA& nodo);
   double costeMejoradoA3(const EstadoA &origen, const EstadoA &destino, Action accion, const vector<vector<unsigned char>>& terreno, const vector<vector<unsigned char>>& altura);

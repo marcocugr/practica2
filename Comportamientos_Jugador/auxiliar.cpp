@@ -1112,20 +1112,24 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores){
 	return accion;
 }
 
-double ComportamientoAuxiliar::calcularHeuristicaA(const EstadoA &actual, const EstadoA &destino){
+double ComportamientoAuxiliar::calcularHeuristicaA(const EstadoA &actual, const EstadoA &destino, const vector<vector<unsigned char>> &altura){
 	/*
 	int dx=actual.f-destino.f;
 	int dy=actual.c-destino.c;	
 	return sqrt(dx*dx + dy*dy);
 	*/
 	
+	int dx = abs(actual.f - destino.f);
+    int dy = abs(actual.c - destino.c);
+    return std::max(dx, dy);
+	
 	//return 0.0;
 	
-	
+	/*
 	int dx = abs(actual.f - destino.f);
         int dy = abs(actual.c - destino.c);
        return dx + dy;
-       
+       */
 	
 }
 
@@ -1241,18 +1245,26 @@ void ComportamientoAuxiliar::procesarSucesor(Action act, const NodoA& current_no
     NodoA sucesor = current_node;
     sucesor.estado = applyA(act, current_node.estado, terreno, altura);
     if(sucesor.estado==current_node.estado) return;
-    //sucesor.g += costeCasillaA1(terreno[sucesor.estado.f][sucesor.estado.c], sucesor.estado.zapatillas);
+
     sucesor.g+=costeMejoradoA3(current_node.estado, sucesor.estado, act, terreno, altura);
-    sucesor.h = calcularHeuristicaA(sucesor.estado, fin);
+    sucesor.h = calcularHeuristicaA(sucesor.estado, fin, altura);
     sucesor.fn = sucesor.g + sucesor.h;
     sucesor.secuencia.push_back(act);
 	
     //si esta en cerrados ni lo toca
     if (cerrados.find(sucesor) != cerrados.end()) return;
     
-    //sino esta en abiertos o esta repey es el mejor le mete
+    // Si el sucesor está en abiertos_map, comparamos los costes
     auto it = abiertos_map.find(sucesor.estado);
-    if (it == abiertos_map.end() || sucesor.g < it->second.g) {
+    if (it != abiertos_map.end()) {
+        // Si ya está en abiertos pero con un coste mayor, sustituirlo
+        if (sucesor.g < it->second.g) {
+            abiertos_map[sucesor.estado] = sucesor;
+            // Volver a meterlo en la cola de prioridad
+            abiertos.push(sucesor);
+        }
+    } else {
+        // Si no está ni en cerrados ni en abiertos, simplemente lo añadimos
         abiertos_map[sucesor.estado] = sucesor;
         abiertos.push(sucesor);
     }
@@ -1268,8 +1280,8 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	
 	//inicializo el nodo actual
 	current_node.estado=ini;
-	current_node.g=0.0;
-	current_node.h=calcularHeuristicaA(ini, fin);
+	current_node.g=0;
+	current_node.h=calcularHeuristicaA(ini, fin, altura);
 	current_node.fn=current_node.g+current_node.h;
 	
 	//le metemos en abiertos porque no le hemos explorado todavia
@@ -1284,18 +1296,17 @@ list <Action> ComportamientoAuxiliar::AlgoritmoAEstrella(const EstadoA &ini, con
 	while(!SolutionFound and !abiertos.empty()){ 
 	
 		//selecciono el mejor nodo de los abiertos (sacando los repetidos obsoletos si tiene)
-		do {
 		    current_node = abiertos.top();
 		    abiertos.pop();
-		} while (abiertos_map.find(current_node.estado) != abiertos_map.end() && current_node.g > abiertos_map[current_node.estado].g);
-
-	    	cerrados.insert(current_node);
-	    	abiertos_map.erase(current_node.estado);
-	    	
-	    	//mira a ver si tiene zapatillas
+		    abiertos_map.erase(current_node.estado);
+	
+	
+		//mira a ver si tiene zapatillas
 			if(terreno[current_node.estado.f][current_node.estado.c] == 'D'){
 				current_node.estado.zapatillas=true;
 			}
+
+	    	cerrados.insert(current_node);
 	    	
 	    	//si es un nodo objetivo, terminar
 	    	if(current_node.estado.f==fin.f and current_node.estado.c==fin.c){
