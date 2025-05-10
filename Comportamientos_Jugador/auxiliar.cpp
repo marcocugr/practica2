@@ -1113,10 +1113,19 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_E(Sensores sensores){
 }
 
 double ComportamientoAuxiliar::calcularHeuristicaA(const EstadoA &actual, const EstadoA &destino){
-	
+	/*
 	int dx=actual.f-destino.f;
 	int dy=actual.c-destino.c;	
 	return sqrt(dx*dx + dy*dy);
+	*/
+	
+	//return 0.0;
+	
+	
+	int dx = abs(actual.f - destino.f);
+        int dy = abs(actual.c - destino.c);
+       return dx + dy;
+       
 	
 }
 
