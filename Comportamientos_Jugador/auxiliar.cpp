@@ -1170,68 +1170,77 @@ void ComportamientoAuxiliar::insertarElMejorNodo(priority_queue<NodoA, vector<No
 double ComportamientoAuxiliar::costeMejoradoA3(const EstadoA &origen, const EstadoA &destino, Action accion, const vector<vector<unsigned char>>& terreno, const vector<vector<unsigned char>>& altura){
 
     double costeBase = 0;
+    bool zap=origen.zapatillas;
     double incrementoDecrecimiento = 0;
     double alturaOr = altura[origen.f][origen.c];
     double alturaDest = altura[destino.f][destino.c];
 
     // Determinar el coste base según la acción y la casilla de origen
-    switch (accion) {
-        case WALK:
-            switch (terreno[origen.f][origen.c]) {
-                case 'A': costeBase = 100; break;
-                case 'T': costeBase = 20; break;
-                case 'S': costeBase = 2; break;
-                default: costeBase = 1; break;
-            }
-            break;
-
-        case TURN_SR:
-            switch (terreno[origen.f][origen.c]) {
-                case 'A': costeBase = 16; break;
-                case 'T': costeBase = 3; break;
-                case 'S': costeBase = 1; break;
-                default: costeBase = 1; break;
-            }
-            break;
-
-        default:
-            return -1; // Si la acción no está contemplada
+     if (accion == WALK) {
+        if (terreno[origen.f][origen.c] == 'A') {
+            costeBase = 100;
+        } else if (terreno[origen.f][origen.c] == 'T') {
+            costeBase = 20;
+        } else if (terreno[origen.f][origen.c] == 'S') {
+            costeBase = 2;
+        } else if (terreno[origen.f][origen.c] == 'B' and zap) {
+            costeBase = 1;
+        } else {
+            costeBase = 1;
+        }
+    } else if (accion == TURN_SR) {
+        if (terreno[origen.f][origen.c] == 'A') {
+            costeBase = 16;
+        } else if (terreno[origen.f][origen.c] == 'T') {
+            costeBase = 3;
+        } else if (terreno[origen.f][origen.c] == 'S') {
+            costeBase = 1;
+        } else if (terreno[origen.f][origen.c] == 'B' and zap) {
+	    costeBase = 1;
+        } else {
+            costeBase = 1;
+        }
+        
+    } else {
+    	return 100000;
     }
+    
+    //camino, zapatillas, puesto bas eo bosque con zapatillas es siempre 1
+		//si es agua, es 100 de base, desnive hacia arriba 110 y hacia abajo 90
 
     // Determinar el incremento o decremento de energía según la diferencia de alturas
     if (accion == WALK) {
-    
-    	//si esta mas alta la casilla destino que la original
-        if (alturaDest-alturaOr==1) { 
-            switch (accion) {
-		case WALK:
-		    switch (terreno[origen.f][origen.c]) {
-		        case 'A': incrementoDecrecimiento = 10; break;
-		        case 'T': incrementoDecrecimiento = 5; break;
-		        case 'S': incrementoDecrecimiento = 1; break;
-		        default: incrementoDecrecimiento = 0; break;
-		    }
-		    break;
-		}
-		
-        } else if (alturaDest-alturaOr==-1) {
-        
-            switch (accion) {
-		case WALK:
-		    switch (terreno[origen.f][origen.c]) {
-		        case 'A': incrementoDecrecimiento = -10; break;
-		        case 'T': incrementoDecrecimiento = -5; break;
-		        case 'S': incrementoDecrecimiento = -1; break;
-		        default: incrementoDecrecimiento = 0; break;
-		    }
-		    break;
-		}
+        if (alturaDest - alturaOr == 1) { // Casilla destino más alta
+            if (terreno[origen.f][origen.c] == 'A') {
+                incrementoDecrecimiento = 10;
+            } else if (terreno[origen.f][origen.c] == 'T') {
+                incrementoDecrecimiento = 5;
+            } else if (terreno[origen.f][origen.c] == 'S') {
+                incrementoDecrecimiento = 1;
+            } else if (terreno[origen.f][origen.c] == 'B' and zap) {
+                incrementoDecrecimiento = 1;
+            } else {
+                incrementoDecrecimiento = 0;
+            }
+        } else if (alturaDest - alturaOr == -1) { // Casilla destino más baja
+            if (terreno[origen.f][origen.c] == 'A') {
+                incrementoDecrecimiento = -10;
+            } else if (terreno[origen.f][origen.c] == 'T') {
+                incrementoDecrecimiento = -5;
+            } else if (terreno[origen.f][origen.c] == 'S') {
+                incrementoDecrecimiento = -1;
+            } else if (terreno[origen.f][origen.c] == 'B' and zap) {
+                incrementoDecrecimiento = -1;
+            } else {
+                incrementoDecrecimiento = 0;
+            }
         }
     }
 
     // Calcular el coste final: base + incremento o decremento
-    double costeFinal = costeBase + incrementoDecrecimiento;
-    return costeFinal;
+    costeBase += incrementoDecrecimiento;
+
+    return costeBase;
 
 }
 
