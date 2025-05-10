@@ -1186,10 +1186,10 @@ double ComportamientoAuxiliar::costeMejoradoA3(const EstadoA &origen, const Esta
     }
 
     // Determinar el incremento o decremento de energía según la diferencia de alturas
-    if (accion == WALK || accion == RUN) {
+    if (accion == WALK) {
     
     	//si esta mas alta la casilla destino que la original
-        if (alturaDest > alturaOr) { 
+        if (alturaDest-alturaOr==1) { 
             switch (accion) {
 		case WALK:
 		    switch (terreno[origen.f][origen.c]) {
@@ -1201,7 +1201,7 @@ double ComportamientoAuxiliar::costeMejoradoA3(const EstadoA &origen, const Esta
 		    break;
 		}
 		
-        } else if (alturaDest < alturaOr) {
+        } else if (alturaDest-alturaOr==-1) {
         
             switch (accion) {
 		case WALK:
