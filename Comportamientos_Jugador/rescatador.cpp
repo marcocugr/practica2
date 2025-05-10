@@ -1296,13 +1296,13 @@ int ComportamientoRescatador::esaParteAjustadoR(char i, char c, char d, bool zap
 		//si camino o sendero return
 		int opcion_i=10000, opcion_d=10000, opcion_c=10000; //visitadas con prioridad
 		
-		if(valida_i && (i=='C' || i=='S')){
+		if(valida_i && (i=='C' || i=='S' || i=='X')){
 			opcion_i=visitadas[pos_i.first][pos_i.second];
 		}
-		if(valida_c && (c=='C' || c=='S')){
+		if(valida_c && (c=='C' || c=='S' || c=='X')){
 			opcion_c=visitadas[pos_c.first][pos_c.second];
 		}
-		if(valida_d && (d=='C' || d=='S')){
+		if(valida_d && (d=='C' || d=='S' || d=='X')){
 			opcion_d=visitadas[pos_d.first][pos_d.second];
 		}
 		
@@ -1339,7 +1339,7 @@ int ComportamientoRescatador::esaParteAjustadoR(char i, char c, char d, bool zap
 			}
 			
 			
-			//if(visitadas_actual>=2 || valida_i+valida_c+valida_d==1){
+			if(visitadas_actual>=2 || valida_i+valida_c+valida_d==1){
 				//si agua return
 				int opcion_ia=10000, opcion_da=10000, opcion_ca=10000; //visitadas con prioridad
 				
@@ -1360,7 +1360,7 @@ int ComportamientoRescatador::esaParteAjustadoR(char i, char c, char d, bool zap
 					if(menos_visitada_prioridadA==opcion_ia) return 1;
 					return 3;
 				}
-			//}
+			}
 			
 		//}
 		
@@ -1574,10 +1574,5 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		pasa=0;
 		return IDLE;
 	} 
-	
-	if(sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC) {
-		visitadas[sensores.posF][sensores.posC]++;
-	}
-	
 
 }

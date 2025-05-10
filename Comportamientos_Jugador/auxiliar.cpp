@@ -1525,14 +1525,14 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	if (!sensores.venpaca || cuenta) {
 	
 		if(sensores.energia<2000 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
-			cout << "hola lvl " << endl;
-			cout << "cuenta vale" << contadorAvance << endl;
+			//cout << "hola lvl " << endl;
+			//cout << "cuenta vale" << contadorAvance << endl;
 			devolver=ComportamientoAuxiliarNivel_1(sensores);
 
 			
 		}  else {
-			cout << "hola ajustado " << endl;
-			cout << "cuenta vale" << contadorAvance << endl;
+			//cout << "hola ajustado " << endl;
+			//cout << "cuenta vale" << contadorAvance << endl;
 			devolver=ajustado(sensores);
 		}
 		
@@ -1558,10 +1558,10 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 		if(sensores.posF==fCercana && sensores.posC==cCercana){
 			cuenta=true;
 			contadorAvance=0;
-			cout << "salgo de pillado" << endl;
+			//cout << "salgo de pillado" << endl;
 		}
 		
-		cout << "pillado" << endl;
+		//cout << "pillado" << endl;
 		
 		Action accion = IDLE;
 		if(sensores.choque){
@@ -1592,7 +1592,7 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	
 	//si sabe donde esta, que trace un plan	
 	} else if (sensores.venpaca and visitadas[sensores.destinoF][sensores.destinoC]>0) {
-	cout << "hola a*" << endl;
+	//cout << "hola a*" << endl;
 
 		Action accion = IDLE;
 		if(sensores.choque){
@@ -1633,13 +1633,15 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	if(cuenta && contadorAvance >=50){
 		cuenta=false;
 		contadorAvance = 0;
-        	cout << "reinicio de cuenta" << endl;
+        	//cout << "reinicio de cuenta" << endl;
 	}
 	
 	if(!sensores.venpaca){
 		contadorAvance = 0;
 		cuenta=false;
 	}
+	
+	if(devolver==WALK and sensores.superficie[2]=='P') devolver=IDLE;
         
         //actualizo posiciones
         posAnteriorF=sensores.posF;
