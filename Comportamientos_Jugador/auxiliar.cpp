@@ -1605,112 +1605,180 @@ void ComportamientoAuxiliar::casillaDescubiertaMasCercana(int destinoF, int dest
     }
 }
 
+void ComportamientoAuxiliar::puestoBaseMasCercanoA(int destinoF, int destinoC, const vector<vector<unsigned char>>& mapaResultado, int& fCercana, int& cCercana){
+	int filas = mapaResultado.size();
+    int columnas = mapaResultado[0].size();
+    double minDistancia = 50000000000000.0;  // Inicialmente una distancia imposible
+    
+    for (int f = 0; f < filas; f++) {
+        for (int c = 0; c < columnas; c++) {
+            // Ignorar casillas no descubiertas o intransitables
+            if (mapaResultado[f][c]=='X'){
+            
+		     // Calcular distancia euclidiana (Pitagoras)
+		    double distancia = sqrt(pow(destinoF - f, 2) + pow(destinoC - c, 2));
+		    if (distancia < minDistancia) {
+		        minDistancia = distancia;
+		        fCercana = f;
+		        cCercana = c;
+		    }
+	    }
+        }
+    }
+}
+
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	
 	Action devolver;
 	static int contadorAvance = 0;
 	static bool cuenta=false;
+	static bool descansar=false;
+	static int baseF=-1;
+	static int baseC=-1;
 	
-	//si no sabe donde esta, explora
-	if (!sensores.venpaca || cuenta) {
-	
-		if(sensores.energia<2000 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
-			//cout << "hola lvl " << endl;
-			//cout << "cuenta vale" << contadorAvance << endl;
-			devolver=ComportamientoAuxiliarNivel_1(sensores);
-
+	if(sensores.energia<=250 and !descansar) descansar=true;
+	else if (sensores.energia>=2000 and descansar) descansar=false;
+		
+		if(descansar){
+			//si tiene que descansar que vaya al puesto base mas cercano
+			puestoBaseMasCercanoA(sensores.posF, sensores.posC, mapaResultado, baseF, baseC);
+			if(sensores.posF!=baseF or sensores.posC!=baseC){
 			
-		}  else {
-			//cout << "hola ajustado " << endl;
-			//cout << "cuenta vale" << contadorAvance << endl;
-			devolver=ajustado(sensores);
-		}
+			//cout << "base mas cercano: fila " << baseF << " columna " << baseC << endl;
+			//cout << "pos actual: fila " << sensores.posF << " columna " << sensores.posC << endl;
+			//if(mapaResultado[baseF][baseC]!='?') cout << "ya vi esa casilla" << endl;
+			//else cout << "no la he visto" << endl;
+			
+				Action accion = IDLE;
+				if (!hayPlan){
+					// Invocar al método de búsqueda
+					EstadoA inicio, fin;
+					inicio.f = sensores.posF;
+					inicio.c = sensores.posC;
+					inicio.brujula = sensores.rumbo;
+					inicio.zapatillas = tiene_zapatillas;
+					fin.f = baseF;
+					fin.c = baseC;
+					plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
+					VisualizaPlan(inicio,plan);
+					hayPlan = plan.size() != 0 ;
+				}
+				if (hayPlan and plan.size()>0){
+					accion = plan.front();
+					plan.pop_front();
+				}
+				if (plan.size()== 0){
+					hayPlan = false;
+				}
+				
+				devolver= accion;
+				if(devolver==IDLE) descansar=false;
+				
+			//si ya esta en el puesto base, que descanse hasta tener 750 de energia otra vez
+			} else if (sensores.posF==baseF and sensores.posC==baseC){
+				devolver= IDLE;
+			}
 		
-		if (devolver!=TURN_SR and cuenta){
-			contadorAvance++;
-		}
-
-	//si no sabe donde esta pero le han llamado que vaya a una cercana a buscar y no tiene que contar casillas
-	} else if(sensores.venpaca and !cuenta and visitadas[sensores.destinoF][sensores.destinoC]==0
-					/*(
-					mapaResultado[sensores.destinoF-1][sensores.destinoC]=='?' ||
-					mapaResultado[sensores.destinoF-1][sensores.destinoC+1]=='?' ||
-					mapaResultado[sensores.destinoF][sensores.destinoC+1]=='?' ||
-					mapaResultado[sensores.destinoF+1][sensores.destinoC+1]=='?' ||
-					mapaResultado[sensores.destinoF+1][sensores.destinoC]=='?' ||
-					mapaResultado[sensores.destinoF+1][sensores.destinoC-1]=='?' ||
-					mapaResultado[sensores.destinoF][sensores.destinoC-1]=='?' ||
-					mapaResultado[sensores.destinoF-1][sensores.destinoC-1]=='?')*/){
-		
-		int fCercana=-1, cCercana=-1;
-		casillaDescubiertaMasCercana(sensores.destinoF, sensores.destinoC, fCercana, cCercana, mapaResultado);
-		
-		if(sensores.posF==fCercana && sensores.posC==cCercana){
-			cuenta=true;
-			contadorAvance=0;
-			//cout << "salgo de pillado" << endl;
-		}
-		
-		//cout << "pillado" << endl;
-		
-		Action accion = IDLE;
-		if(sensores.choque){
-			hayPlan=false;
-		}
-		if (!hayPlan){
-			// Invocar al método de búsqueda
-			EstadoA inicio, fin;
-			inicio.f = sensores.posF;
-			inicio.c = sensores.posC;
-			inicio.brujula = sensores.rumbo;
-			inicio.zapatillas = tiene_zapatillas;
-			fin.f = fCercana;
-			fin.c = cCercana;
-			plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
-			VisualizaPlan(inicio,plan);
-			hayPlan = plan.size() != 0 ;
-		}
-		if (hayPlan and plan.size()>0){
-			accion = plan.front();
-			plan.pop_front();
-		}
-		if (plan.size()== 0){
-			hayPlan = false;
-		}
-		devolver=accion;
+		} else { //SI NO TIENE QUE DESCANSAR
 	
-	
-	//si sabe donde esta, que trace un plan	
-	} else if (sensores.venpaca and visitadas[sensores.destinoF][sensores.destinoC]>0) {
-	//cout << "hola a*" << endl;
+			//si no sabe donde esta, explora
+			if (!sensores.venpaca || cuenta) {
+			
+				if(sensores.energia<=2000 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
+					//cout << "hola lvl " << endl;
+					//cout << "cuenta vale" << contadorAvance << endl;
+					devolver=ComportamientoAuxiliarNivel_1(sensores);
 
-		Action accion = IDLE;
-		if(sensores.choque){
-			hayPlan=false;
-		}
-		if (!hayPlan){
-			// Invocar al método de búsqueda
-			EstadoA inicio, fin;
-			inicio.f = sensores.posF;
-			inicio.c = sensores.posC;
-			inicio.brujula = sensores.rumbo;
-			inicio.zapatillas = tiene_zapatillas;
-			fin.f = sensores.destinoF;
-			fin.c = sensores.destinoC;
-			plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
-			VisualizaPlan(inicio,plan);
-			hayPlan = plan.size() != 0 ;
-		}
-		if (hayPlan and plan.size()>0){
-			accion = plan.front();
-			plan.pop_front();
-		}
-		if (plan.size()== 0){
-			hayPlan = false;
-		}
-		devolver=accion;
-        	
-        } 
+					
+				}  else {
+					//cout << "hola ajustado " << endl;
+					//cout << "cuenta vale" << contadorAvance << endl;
+					devolver=ajustado(sensores);
+				}
+				
+				if (devolver!=TURN_SR and cuenta){
+					contadorAvance++;
+				}
+
+			//si no sabe donde esta pero le han llamado que vaya a una cercana a buscar y no tiene que contar casillas
+			} else if(sensores.venpaca and !cuenta and visitadas[sensores.destinoF][sensores.destinoC]==0
+							/*(
+							mapaResultado[sensores.destinoF-1][sensores.destinoC]=='?' ||
+							mapaResultado[sensores.destinoF-1][sensores.destinoC+1]=='?' ||
+							mapaResultado[sensores.destinoF][sensores.destinoC+1]=='?' ||
+							mapaResultado[sensores.destinoF+1][sensores.destinoC+1]=='?' ||
+							mapaResultado[sensores.destinoF+1][sensores.destinoC]=='?' ||
+							mapaResultado[sensores.destinoF+1][sensores.destinoC-1]=='?' ||
+							mapaResultado[sensores.destinoF][sensores.destinoC-1]=='?' ||
+							mapaResultado[sensores.destinoF-1][sensores.destinoC-1]=='?')*/){
+				
+				int fCercana=-1, cCercana=-1;
+				casillaDescubiertaMasCercana(sensores.destinoF, sensores.destinoC, fCercana, cCercana, mapaResultado);
+				
+				if(sensores.posF==fCercana && sensores.posC==cCercana){
+					cuenta=true;
+					contadorAvance=0;
+					//cout << "salgo de pillado" << endl;
+				}
+				
+				//cout << "pillado" << endl;
+				
+				Action accion = IDLE;
+				if (!hayPlan){
+					// Invocar al método de búsqueda
+					EstadoA inicio, fin;
+					inicio.f = sensores.posF;
+					inicio.c = sensores.posC;
+					inicio.brujula = sensores.rumbo;
+					inicio.zapatillas = tiene_zapatillas;
+					fin.f = fCercana;
+					fin.c = cCercana;
+					plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
+					VisualizaPlan(inicio,plan);
+					hayPlan = plan.size() != 0 ;
+				}
+				if (hayPlan and plan.size()>0){
+					accion = plan.front();
+					plan.pop_front();
+				}
+				if (plan.size()== 0){
+					hayPlan = false;
+				}
+				devolver=accion;
+			
+			
+			//si sabe donde esta, que trace un plan	
+			} else if (sensores.venpaca and visitadas[sensores.destinoF][sensores.destinoC]>0) {
+			//cout << "hola a*" << endl;
+
+				Action accion = IDLE;
+				if(sensores.choque){
+					hayPlan=false;
+				}
+				if (!hayPlan){
+					// Invocar al método de búsqueda
+					EstadoA inicio, fin;
+					inicio.f = sensores.posF;
+					inicio.c = sensores.posC;
+					inicio.brujula = sensores.rumbo;
+					inicio.zapatillas = tiene_zapatillas;
+					fin.f = sensores.destinoF;
+					fin.c = sensores.destinoC;
+					plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
+					VisualizaPlan(inicio,plan);
+					hayPlan = plan.size() != 0 ;
+				}
+				if (hayPlan and plan.size()>0){
+					accion = plan.front();
+					plan.pop_front();
+				}
+				if (plan.size()== 0){
+					hayPlan = false;
+				}
+				devolver=accion;
+				
+			} 
+        }
         
         /*
         //si avanza a una casilla nueva y no tiene que ir a la cercana, se incrementan los pasos

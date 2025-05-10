@@ -125,6 +125,7 @@ void procesarSucesorR(Action act, const NodoR& current_node, const EstadoR& fin,
                      priority_queue<NodoR, vector<NodoR>, ComparadorNodoR>& abiertos);
                      
                        //funciones nivel 4
+                       void puestoBaseMasCercano(int destinoF, int destinoC, const vector<vector<unsigned char>>& mapaResultado, int& fCercana, int& cCercana);
   int esaParteAjustadoR(char i, char c, char d, bool zap, int energia, int fila, int col);
   Action ajustadoR(Sensores sensores);
 

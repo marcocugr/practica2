@@ -1501,21 +1501,88 @@ Action ComportamientoRescatador::ajustadoR(Sensores sensores){
 
 }
 
+void ComportamientoRescatador::puestoBaseMasCercano(int destinoF, int destinoC, const vector<vector<unsigned char>>& mapaResultado, int& fCercana, int& cCercana){
+	int filas = mapaResultado.size();
+    int columnas = mapaResultado[0].size();
+    double minDistancia = 50000000000000.0;  // Inicialmente una distancia imposible
+    
+    for (int f = 0; f < filas; f++) {
+        for (int c = 0; c < columnas; c++) {
+            // Ignorar casillas no descubiertas o intransitables
+            if (mapaResultado[f][c]=='X'){
+            
+		     // Calcular distancia euclidiana (Pitagoras)
+		    double distancia = sqrt(pow(destinoF - f, 2) + pow(destinoC - c, 2));
+		    if (distancia < minDistancia) {
+		        minDistancia = distancia;
+		        fCercana = f;
+		        cCercana = c;
+		    }
+	    }
+        }
+    }
+}
+
 Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensores){
 	
 	static int pasa = 0;
     	static int lastF = -1;
     	static int lastC = -1;
+    	static int baseF=-1;
+    	static int baseC=-1;
+    	static bool descansar=false;
+    	static float llamada=0.0f;
+    	
+    	cout << "tiempo: " << sensores.tiempo << endl;
     	
     	if (sensores.posF != lastF || sensores.posC != lastC) {
 		pasa = 0;
 		lastF = sensores.posF;
 		lastC = sensores.posC;
 	    }
+	    
+	    //tiene que descansar para conseguir mas puntos
+	 if(sensores.energia<=250 and !descansar) descansar=true;
+	 else if (sensores.energia>=2000 and descansar) descansar=false;
+		
+		if(descansar){
+			//si tiene que descansar que vaya al puesto base mas cercano
+			puestoBaseMasCercano(sensores.posF, sensores.posC, mapaResultado, baseF, baseC);
+			if(sensores.posF!=baseF or sensores.posC!=baseC){
+			
+				Action accion = IDLE;
+				if (!hayPlan){
+					// Invocar al método de búsqueda
+					EstadoR inicio, fin;
+					inicio.f = sensores.posF;
+					inicio.c = sensores.posC;
+					inicio.brujula = sensores.rumbo;
+					inicio.zapatillas = tiene_zapatillas;
+					fin.f = baseF;
+					fin.c = baseC;
+					plan = AlgoritmoDjkstra(inicio, fin, mapaResultado, mapaCotas);
+					VisualizaPlanR(inicio,plan);
+					hayPlan = plan.size() != 0 ;
+				}
+				if (hayPlan and plan.size()>0){
+					accion = plan.front();
+					plan.pop_front();
+				}
+				if (plan.size()== 0){
+					hayPlan = false;
+				}
+				return accion;
+				
+			//si ya esta en el puesto base, que descanse hasta tener 750 de energia otra vez
+			} else if (sensores.posF==baseF and sensores.posC==baseC){
+				return IDLE;
+			}
+		
+		}
     	
-    	if(mapaResultado[sensores.destinoF][sensores.destinoC]=='?'){
+    	if(mapaResultado[sensores.destinoF][sensores.destinoC]=='?' ){
     	
-    		if(visitadas[sensores.posF][sensores.posC]<=5 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
+    		if(visitadas[sensores.posF][sensores.posC]<=2 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
     			return ComportamientoRescatadorNivel_1(sensores);
     			
     		} else {
@@ -1523,11 +1590,10 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
     		}
     	
     	} //return ajustadoR(sensores);
+    	
 	if (sensores.posF != sensores.destinoF or sensores.posC != sensores.destinoC){
 		pasa=0;
 		//cout << "hola" << endl;
-		
-		
 		
 		Action accion = IDLE;
 		if(sensores.choque){
@@ -1561,17 +1627,24 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad){
 		if (pasa == 0) {
 		    pasa++;
+		    llamada=sensores.tiempo;
 		    return CALL_ON;
+		    
 		} else {
-		//cout << "else del call on idle" << endl;
-		    return IDLE;
+			if(sensores.tiempo-llamada<=0.003398){ //sino ha esperado lo suficiente, espera
+				return IDLE;
+				
+			} else {
+				llamada=0.0f;
+				return CALL_OFF;
+			}	
 		}
 		
 	} else if (sensores.posF == sensores.destinoF and sensores.posC == sensores.destinoC and sensores.gravedad==0){
 		return CALL_OFF;
 		
 	} else {
-		//cout << "else final" << endl;
+		cout << "else final" << endl;
 		pasa=0;
 		return IDLE;
 	} 
