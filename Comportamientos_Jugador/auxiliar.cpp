@@ -1154,6 +1154,74 @@ void ComportamientoAuxiliar::insertarElMejorNodo(priority_queue<NodoA, vector<No
         pq=copia;
 }
 
+double ComportamientoAuxiliar::costeMejoradoA3(const EstadoA &origen, const EstadoA &destino, Action accion, const vector<vector<unsigned char>>& terreno, const vector<vector<unsigned char>>& altura){
+
+    double costeBase = 0;
+    double incrementoDecrecimiento = 0;
+    double alturaOr = altura[origen.f][origen.c];
+    double alturaDest = altura[destino.f][destino.c];
+
+    // Determinar el coste base según la acción y la casilla de origen
+    switch (accion) {
+        case WALK:
+            switch (terreno[origen.f][origen.c]) {
+                case 'A': costeBase = 100; break;
+                case 'T': costeBase = 20; break;
+                case 'S': costeBase = 2; break;
+                default: costeBase = 1; break;
+            }
+            break;
+
+        case TURN_SR:
+            switch (terreno[origen.f][origen.c]) {
+                case 'A': costeBase = 16; break;
+                case 'T': costeBase = 3; break;
+                case 'S': costeBase = 1; break;
+                default: costeBase = 1; break;
+            }
+            break;
+
+        default:
+            return -1; // Si la acción no está contemplada
+    }
+
+    // Determinar el incremento o decremento de energía según la diferencia de alturas
+    if (accion == WALK || accion == RUN) {
+    
+    	//si esta mas alta la casilla destino que la original
+        if (alturaDest > alturaOr) { 
+            switch (accion) {
+		case WALK:
+		    switch (terreno[origen.f][origen.c]) {
+		        case 'A': incrementoDecrecimiento = 10; break;
+		        case 'T': incrementoDecrecimiento = 5; break;
+		        case 'S': incrementoDecrecimiento = 1; break;
+		        default: incrementoDecrecimiento = 0; break;
+		    }
+		    break;
+		}
+		
+        } else if (alturaDest < alturaOr) {
+        
+            switch (accion) {
+		case WALK:
+		    switch (terreno[origen.f][origen.c]) {
+		        case 'A': incrementoDecrecimiento = -10; break;
+		        case 'T': incrementoDecrecimiento = -5; break;
+		        case 'S': incrementoDecrecimiento = -1; break;
+		        default: incrementoDecrecimiento = 0; break;
+		    }
+		    break;
+		}
+        }
+    }
+
+    // Calcular el coste final: base + incremento o decremento
+    double costeFinal = costeBase + incrementoDecrecimiento;
+    return costeFinal;
+
+}
+
 void ComportamientoAuxiliar::procesarSucesor(Action act, const NodoA& current_node, const EstadoA& fin,
                      const vector<vector<unsigned char>>& terreno,
                      const vector<vector<unsigned char>>& altura,
@@ -1163,7 +1231,8 @@ void ComportamientoAuxiliar::procesarSucesor(Action act, const NodoA& current_no
 
     NodoA sucesor = current_node;
     sucesor.estado = applyA(act, current_node.estado, terreno, altura);
-    sucesor.g += costeCasillaA1(terreno[sucesor.estado.f][sucesor.estado.c], sucesor.estado.zapatillas);
+    //sucesor.g += costeCasillaA1(terreno[sucesor.estado.f][sucesor.estado.c], sucesor.estado.zapatillas);
+    sucesor.g+=costeMejoradoA3(current_node.estado, sucesor.estado, act, terreno, altura);
     sucesor.h = calcularHeuristicaA(sucesor.estado, fin);
     sucesor.fn = sucesor.g + sucesor.h;
     sucesor.secuencia.push_back(act);
