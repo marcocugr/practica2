@@ -708,7 +708,8 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_1(Sensores sensores)
 		int probabilidad = std::rand() % 2; // 50% de probabilidad
 		magia++;
 		if (probabilidad == 0) {
-			    return TURN_L;
+			    giro45Izq=6; //PONER 5 A LA DERECHA OSEA TURN_SR
+			    accion=TURN_SR;
 		} else {
 		    return TURN_SR;
 		}
@@ -1270,11 +1271,27 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_3(Sensores sensores){
 
 }
 
+bool ComportamientoAuxiliar::esValidaLevel4(char casilla, int energia_actual, bool zap){
+
+	if(casilla=='B' and !zap) return false;
+	else if(casilla=='B' and zap) return true;
+	else if(casilla=='T' && energia_actual>=20) return true;
+	else if (casilla=='A' && energia_actual>=100) return true;
+	else if (casilla=='P') return false;
+	else if (casilla=='C' && energia_actual>=1) return true;
+	else if (casilla=='S' && energia_actual>=2) return true;
+	else if (casilla=='M') return false;
+	else if (casilla=='D' && energia_actual>=1) return true;
+	else if (casilla=='X' && energia_actual>=1) return true;
+	else return false;
+
+}
+
 int ComportamientoAuxiliar::esaParteAjustadoA(char i, char c, char d, bool zap, int energia, int fila, int col){
 
-	bool valida_i=esValidaA1(i,energia);
-	bool valida_c=esValidaA1(c,energia);
-	bool valida_d=esValidaA1(d,energia);
+	bool valida_i=esValidaLevel4(i,energia,zap);
+	bool valida_c=esValidaLevel4(c,energia,zap);
+	bool valida_d=esValidaLevel4(d,energia,zap);
 	int visitadas_actual=visitadas[fila][col];
 	
 	
@@ -1476,32 +1493,108 @@ Action ComportamientoAuxiliar::ajustado(Sensores sensores){
 
 }
 
+void ComportamientoAuxiliar::casillaDescubiertaMasCercana(int destinoF, int destinoC, int& fCercana, int& cCercana, const vector<vector<unsigned char>>& mapaResultado) {
+    int filas = mapaResultado.size();
+    int columnas = mapaResultado[0].size();
+    double minDistancia = 50000000000000.0;  // Inicialmente una distancia imposible
+    
+    for (int f = 0; f < filas; f++) {
+        for (int c = 0; c < columnas; c++) {
+            // Ignorar casillas no descubiertas o intransitables
+            if (mapaResultado[f][c] != '?' and mapaResultado[f][c] != 'P' and mapaResultado[f][c] != 'M'){
+            
+		     // Calcular distancia euclidiana (Pitagoras)
+		    double distancia = sqrt(pow(destinoF - f, 2) + pow(destinoC - c, 2));
+		    if (distancia < minDistancia) {
+		        minDistancia = distancia;
+		        fCercana = f;
+		        cCercana = c;
+		    }
+	    }
+        }
+    }
+}
+
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	
-	static int trampa=0;
-	Action action;
+	Action devolver;
+	static int contadorAvance = 0;
+	static bool cuenta=false;
 	
+	//si no sabe donde esta, explora
+	if (!sensores.venpaca || mapaResultado[sensores.destinoF][sensores.destinoC]!='?' || cuenta) {
 	
-	if (!sensores.venpaca || (sensores.venpaca && mapaResultado[sensores.destinoF][sensores.destinoC]=='?')) {
-	
-		if(sensores.energia<2500 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
-			action=ComportamientoAuxiliarNivel_1(sensores);
-			//cout << "hola desde comportamiento lvl 1" << endl;
-			//return ComportamientoAuxiliarNivel_1(sensores);
+		if(sensores.energia<2300 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
+			cout << "hola lvl " << endl;
+			devolver=ComportamientoAuxiliarNivel_1(sensores);
+
 			
 		}  else {
-			//cout << "hola desde ajustado, action debe valer 10!" << endl;
-			action=ajustado(sensores);
+			cout << "hola ajustado " << endl;
+			devolver=ajustado(sensores);
 		}
-			//return  ajustado(sensores);
+
+	//si no sabe donde esta pero le han llamado que vaya a una cercana a buscar y no tiene que contar casillas
+	} else if(sensores.venpaca and !cuenta and
+					(
+					mapaResultado[sensores.destinoF-1][sensores.destinoC]=='?' ||
+					mapaResultado[sensores.destinoF-1][sensores.destinoC+1]=='?' ||
+					mapaResultado[sensores.destinoF][sensores.destinoC+1]=='?' ||
+					mapaResultado[sensores.destinoF+1][sensores.destinoC+1]=='?' ||
+					mapaResultado[sensores.destinoF+1][sensores.destinoC]=='?' ||
+					mapaResultado[sensores.destinoF+1][sensores.destinoC-1]=='?' ||
+					mapaResultado[sensores.destinoF][sensores.destinoC-1]=='?' ||
+					mapaResultado[sensores.destinoF-1][sensores.destinoC-1]=='?')){
 		
- 		//return ajustado(sensores);
-		//return ComportamientoAuxiliarNivel_1(sensores);
+		int fCercana=-1, cCercana=-1;
+		casillaDescubiertaMasCercana(sensores.destinoF, sensores.destinoC, fCercana, cCercana, mapaResultado);
 		
-	} else if (sensores.venpaca) {
-		//cout << "estoy en venpaca true" << endl;
+		if(sensores.posF==fCercana && sensores.posC==cCercana){
+			cuenta=true;
+			cout << "salgo de pillado" << endl;
+		}
 		
+		cout << "pillado" << endl;
 		
+		Action accion = IDLE;
+		if(sensores.choque){
+			hayPlan=false;
+		}
+		if (!hayPlan){
+			// Invocar al método de búsqueda
+			EstadoA inicio, fin;
+			inicio.f = sensores.posF;
+			inicio.c = sensores.posC;
+			inicio.brujula = sensores.rumbo;
+			inicio.zapatillas = tiene_zapatillas;
+			fin.f = fCercana;
+			fin.c = cCercana;
+			plan = AlgoritmoAEstrella(inicio, fin, mapaResultado, mapaCotas);
+			VisualizaPlan(inicio,plan);
+			hayPlan = plan.size() != 0 ;
+		}
+		if (hayPlan and plan.size()>0){
+			accion = plan.front();
+			plan.pop_front();
+		}
+		if (plan.size()== 0){
+			hayPlan = false;
+		}
+		devolver=accion;
+	
+	
+	//si sabe donde esta, que trace un plan	
+	} else if (sensores.venpaca and (
+					mapaResultado[sensores.destinoF-1][sensores.destinoC]!='?' ||
+					mapaResultado[sensores.destinoF-1][sensores.destinoC+1]!='?' ||
+					mapaResultado[sensores.destinoF][sensores.destinoC+1]!='?' ||
+					mapaResultado[sensores.destinoF+1][sensores.destinoC+1]!='?' ||
+					mapaResultado[sensores.destinoF+1][sensores.destinoC]!='?' ||
+					mapaResultado[sensores.destinoF+1][sensores.destinoC-1]!='?' ||
+					mapaResultado[sensores.destinoF][sensores.destinoC-1]!='?' ||
+					mapaResultado[sensores.destinoF-1][sensores.destinoC-1]!='?')) {
+	cout << "hola a*" << endl;
+
 		Action accion = IDLE;
 		if(sensores.choque){
 			hayPlan=false;
@@ -1526,13 +1619,25 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 		if (plan.size()== 0){
 			hayPlan = false;
 		}
-		action=accion;
-		
-        	//return ComportamientoAuxiliarNivel_3(sensores);
+		devolver=accion;
         	
         } 
-         
-        last_action=action;
-        return action;
+        
+        
+        //si avanza a una casilla nueva y no tiene que ir a la cercana, se incrementan los pasos
+        if(sensores.posF!=posAnteriorF or sensores.posC!=posAnteriorC and cuenta) {
+		contadorAvance++;
+	}
+	
+	//si ha avanzado 50 y sigue sin encontrar, vuelve a la mas cercana a intentarlo de nuevo
+	if(contadorAvance%50==0){
+		cuenta=false;
+	}
+        
+        //actualizo posiciones
+        posAnteriorF=sensores.posF;
+	posAnteriorC=sensores.posC;
+	
+	return devolver;
 
 }

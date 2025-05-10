@@ -127,6 +127,8 @@ void procesarSucesor(Action act, const NodoA& current_node, const EstadoA& fin,
                      priority_queue<NodoA, vector<NodoA>, ComparadorNodoA>& abiertos);
 
   //funciones nivel 4
+  bool esValidaLevel4(char casilla, int energia_actual, bool zap);
+  void casillaDescubiertaMasCercana(int destinoF, int destinoC, int& fCercana, int& cCercana, const vector<vector<unsigned char>>& mapaResultado);
   int esaParteAjustadoA(char i, char c, char d, bool zap, int energia, int fila, int col);
   Action ajustado(Sensores sensores);
 
