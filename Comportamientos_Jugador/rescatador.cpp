@@ -1512,7 +1512,12 @@ Action ComportamientoRescatador::ComportamientoRescatadorNivel_4(Sensores sensor
 		lastC = sensores.posC;
 	    }
     	
-    	if(mapaResultado[sensores.destinoF][sensores.destinoC]=='?') return ajustadoR(sensores);
+    	if(mapaResultado[sensores.destinoF][sensores.destinoC]=='?'){
+    	
+    		if(mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S') return ComportamientoRescatadorNivel_1(sensores);
+    		else return  ajustadoR(sensores);
+    	
+    	} //return ajustadoR(sensores);
 	if (sensores.posF != sensores.destinoF or sensores.posC != sensores.destinoC){
 		pasa=0;
 		//cout << "hola" << endl;

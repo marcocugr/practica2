@@ -1479,8 +1479,23 @@ Action ComportamientoAuxiliar::ajustado(Sensores sensores){
 Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 	
 	static int trampa=0;
-	if (sensores.energia >= 700) {
-		return ajustado(sensores);
+	Action action;
+	
+	
+	if (!sensores.venpaca || (sensores.venpaca && mapaResultado[sensores.destinoF][sensores.destinoC]=='?')) {
+	
+		if(sensores.energia<2500 and (mapaResultado[sensores.posF][sensores.posC]=='C' || mapaResultado[sensores.posF][sensores.posC]=='S')){
+			action=ComportamientoAuxiliarNivel_1(sensores);
+			//cout << "hola desde comportamiento lvl 1" << endl;
+			//return ComportamientoAuxiliarNivel_1(sensores);
+			
+		}  else {
+			//cout << "hola desde ajustado, action debe valer 10!" << endl;
+			action=ajustado(sensores);
+		}
+			//return  ajustado(sensores);
+		
+ 		//return ajustado(sensores);
 		//return ComportamientoAuxiliarNivel_1(sensores);
 		
 	} else if (sensores.venpaca) {
@@ -1511,24 +1526,13 @@ Action ComportamientoAuxiliar::ComportamientoAuxiliarNivel_4(Sensores sensores){
 		if (plan.size()== 0){
 			hayPlan = false;
 		}
-		return accion;
+		action=accion;
 		
         	//return ComportamientoAuxiliarNivel_3(sensores);
         	
-        } else if (sensores.agentes[2]=='r' || sensores.agentes[1]=='r' || sensores.agentes[2]=='r'){
-        trampa++;
-        	
-        return ajustado(sensores);
-        //return IDLE;
-        
-        } else {
-        	if (trampa>0){
-        	trampa=0;
-        	 return WALK;
-        	
-        	}
-        	cout << "estoy de vacaciones" << endl;
-        	return IDLE;
-        }
+        } 
+         
+        last_action=action;
+        return action;
 
 }
